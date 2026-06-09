@@ -34,19 +34,25 @@ const GROUPS_DATA = {
 };
 
 const FLAGS = {
-  "México": "🇲🇽", "África do Sul": "🇿🇦", "Coreia do Sul": "🇰🇷", "Rep. Tcheca": "🇨🇿",
-  "Canadá": "🇨🇦", "Bósnia": "🇧🇦", "Catar": "🇶🇦", "Suíça": "🇨🇭",
-  "Brasil": "🇧🇷", "Marrocos": "🇲🇦", "Haiti": "🇭🇹", "Escócia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
-  "EUA": "🇺🇸", "Paraguai": "🇵🇾", "Austrália": "🇦🇺", "Turquia": "🇹🇷",
-  "Alemanha": "🇩🇪", "Curaçao": "🇨🇼", "Costa do Marfim": "🇨🇮", "Equador": "🇪🇨",
-  "Holanda": "🇳🇱", "Japão": "🇯🇵", "Suécia": "🇸🇪", "Tunísia": "🇹🇳",
-  "Bélgica": "🇧🇪", "Egito": "🇪🇬", "Irã": "🇮🇷", "Nova Zelândia": "🇳🇿",
-  "Espanha": "🇪🇸", "Cabo Verde": "🇨🇻", "Arábia Saudita": "🇸🇦", "Uruguai": "🇺🇾",
-  "França": "🇫🇷", "Senegal": "🇸🇳", "Iraque": "🇮🇶", "Noruega": "🇳🇴",
-  "Argentina": "🇦🇷", "Argélia": "🇩🇿", "Áustria": "🇦🇹", "Jordânia": "🇯🇴",
-  "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbequistão": "🇺🇿", "Colômbia": "🇨🇴",
-  "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croácia": "🇭🇷", "Gana": "🇬🇭", "Panamá": "🇵🇦",
+  "México": "mx", "África do Sul": "za", "Coreia do Sul": "kr", "Rep. Tcheca": "cz",
+  "Canadá": "ca", "Bósnia": "ba", "Catar": "qa", "Suíça": "ch",
+  "Brasil": "br", "Marrocos": "ma", "Haiti": "ht", "Escócia": "gb-sct",
+  "EUA": "us", "Paraguai": "py", "Austrália": "au", "Turquia": "tr",
+  "Alemanha": "de", "Curaçao": "cw", "Costa do Marfim": "ci", "Equador": "ec",
+  "Holanda": "nl", "Japão": "jp", "Suécia": "se", "Tunísia": "tn",
+  "Bélgica": "be", "Egito": "eg", "Irã": "ir", "Nova Zelândia": "nz",
+  "Espanha": "es", "Cabo Verde": "cv", "Arábia Saudita": "sa", "Uruguai": "uy",
+  "França": "fr", "Senegal": "sn", "Iraque": "iq", "Noruega": "no",
+  "Argentina": "ar", "Argélia": "dz", "Áustria": "at", "Jordânia": "jo",
+  "Portugal": "pt", "RD Congo": "cd", "Uzbequistão": "uz", "Colômbia": "co",
+  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa",
 };
+
+function Flag({ country }) {
+  const code = FLAGS[country];
+  if (!code) return null;
+  return <img src={`https://flagcdn.com/24x18/${code}.png`} alt={country} style={{ width: 24, height: 18, borderRadius: 2, objectFit: "cover", flexShrink: 0 }} />;
+}
 
 function generateGroupMatches() {
   const matches = [];
@@ -77,7 +83,7 @@ function calcPoints(guess, match) {
   if (match.scoreHome === null || match.scoreAway === null) return 0;
   let pts = 0;
   if (getMatchResult(guess.scoreHome, guess.scoreAway) === getMatchResult(match.scoreHome, match.scoreAway)) pts += 1;
-  if (match.scoreHome - match.scoreAway === guess.scoreHome - guess.scoreAway) pts += 3;
+  if (match.scoreHome + match.scoreAway === guess.scoreHome + guess.scoreAway) pts += 3;
   if (match.scoreHome === guess.scoreHome && match.scoreAway === guess.scoreAway) pts += 5;
   return pts;
 }
@@ -118,13 +124,13 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
         {match.phase === "Grupos" ? `Grupo ${match.group} · ${match.round}` : match.phase}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>{FLAGS[match.home] || "🏳"} {match.home}</div>
+        <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}><Flag country={match.home} /> {match.home}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
           {hasScore
             ? <><ScoreBadge score={match.scoreHome} color="#c9a227" /><span style={{ color: "#444" }}>×</span><ScoreBadge score={match.scoreAway} color="#c9a227" /></>
             : <span style={{ color: "#444", fontSize: 13, fontStyle: "italic" }}>Aguardando</span>}
         </div>
-        <div style={{ flex: 1, textAlign: "left", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>{FLAGS[match.away] || "🏳"} {match.away}</div>
+        <div style={{ flex: 1, textAlign: "left", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}><Flag country={match.away} /> {match.away}</div>
       </div>
 
       {isAdmin && !hasScore && (
@@ -406,13 +412,13 @@ export default function App() {
                     <span style={{ marginLeft: 8 }}>· {totalGuesses} palpite(s)</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15 }}>{FLAGS[m.home] || "🏳"} {m.home}</div>
+                    <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15 }}><Flag country={m.home} /> {m.home}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       {m.scoreHome !== null
                         ? <><ScoreBadge score={m.scoreHome} color="#c9a227" /><span style={{ color: "#444" }}>×</span><ScoreBadge score={m.scoreAway} color="#c9a227" /></>
                         : <span style={{ color: "#444", fontSize: 12, fontStyle: "italic" }}>Aguardando</span>}
                     </div>
-                    <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{FLAGS[m.away] || "🏳"} {m.away}</div>
+                    <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}><Flag country={m.away} /> {m.away}</div>
                   </div>
                   {m.scoreHome !== null && (() => {
                     let exact = 0, goal = 0, win = 0;
@@ -469,7 +475,7 @@ export default function App() {
                     <div style={{ fontWeight: 700, marginBottom: 8, color: "#c9a227", fontSize: 13 }}>📋 Sistema de Pontuação</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#888" }}>
                       <div>✓ Acertar <strong style={{ color: "#e8e8e8" }}>vencedor</strong> → <strong style={{ color: "#c9a227" }}>1 ponto</strong></div>
-                      <div>〜 Acertar <strong style={{ color: "#e8e8e8" }}>saldo de gols</strong> → <strong style={{ color: "#c9a227" }}>3 pontos</strong></div>
+                      <div>〜 Acertar <strong style={{ color: "#e8e8e8" }}>total de gols</strong> → <strong style={{ color: "#c9a227" }}>3 pontos</strong></div>
                       <div>🎯 Acertar <strong style={{ color: "#e8e8e8" }}>placar exato</strong> → <strong style={{ color: "#c9a227" }}>5 pontos</strong></div>
                     </div>
                   </div>
