@@ -105,7 +105,7 @@ function ScoreBadge({ score, color = "#c9a227" }) {
   );
 }
 
-function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
+function MatchCard({ match, onSetScore, onToggleLock, isAdmin, userGuess, showResult }) {
   const [h, setH] = useState("");
   const [a, setA] = useState("");
   const [guessH, setGuessH] = useState("");
@@ -139,16 +139,30 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
           <span style={{ color: "#555" }}>×</span>
           <input type="number" min="0" max="20" value={a} onChange={e => setA(e.target.value)} placeholder="Fora" style={inputSm} />
           <button onClick={() => { if (h !== "" && a !== "") { onSetScore(match.id, parseInt(h), parseInt(a)); setH(""); setA(""); }}} style={btnGold}>✓ Confirmar</button>
+          <button onClick={() => onToggleLock(match.id)} style={{
+            background: match.locked ? "#2a1a00" : "#1a1a1a",
+            color: match.locked ? "#c9a227" : "#666",
+            border: `1px solid ${match.locked ? "#c9a227" : "#2a2a2a"}`,
+            borderRadius: 6, padding: "7px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700
+          }}>
+            {match.locked ? "🔒 Bloqueado" : "🔓 Liberar"}
+          </button>
         </div>
       )}
 
-      {!isAdmin && !hasScore && !userGuess && (
+      {!isAdmin && !hasScore && !userGuess && !match.locked && (
         <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
           <span style={{ color: "#888", fontSize: 12 }}>Seu palpite:</span>
           <input type="number" min="0" max="20" value={guessH} onChange={e => setGuessH(e.target.value)} placeholder="?" style={inputSm} />
           <span style={{ color: "#555" }}>×</span>
           <input type="number" min="0" max="20" value={guessA} onChange={e => setGuessA(e.target.value)} placeholder="?" style={inputSm} />
           <button onClick={() => { if (guessH !== "" && guessA !== "") { onSetScore(match.id, parseInt(guessH), parseInt(guessA)); setGuessH(""); setGuessA(""); }}} style={btnSmall}>Enviar</button>
+        </div>
+      )}
+
+      {!isAdmin && !hasScore && !userGuess && match.locked && (
+        <div style={{ marginTop: 8, textAlign: "center", fontSize: 12, color: "#666", fontStyle: "italic" }}>
+          🔒 Palpites encerrados
         </div>
       )}
 
@@ -239,6 +253,11 @@ export default function App() {
     setActivePlayer(found.id);
     setLoginName(""); setLoginPass("");
     setTab("palpites");
+  };
+
+  const toggleLock = async (matchId) => {
+    const updated = matches.map(m => m.id === matchId ? { ...m, locked: !m.locked } : m);
+    await saveMatches(updated);
   };
 
   const setMatchScore = async (matchId, h, a) => {
@@ -566,7 +585,7 @@ export default function App() {
                 <div style={{ fontWeight: 700, color: "#555", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
                 <GroupFilter />
                 {filteredMatches.map(m => (
-                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} userGuess={null} showResult={false} />
+                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} userGuess={null} showResult={false} />
                 ))}
 
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
