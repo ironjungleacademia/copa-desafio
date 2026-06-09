@@ -77,10 +77,10 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 
 // ─── COMPONENTS ──────────────────────────────────────────────────────────────
 
-const inputSm = { width: 44, textAlign: "center", background: "#0d1a0d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "6px 4px", fontSize: 16, fontWeight: 700 };
+const inputSm = { width: 44, textAlign: "center", background: "#111111", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "6px 4px", fontSize: 16, fontWeight: 700 };
 const btnGold = { background: "#c9a227", color: "#111", border: "none", borderRadius: 6, padding: "7px 14px", fontWeight: 700, cursor: "pointer", fontSize: 13 };
-const btnSmall = { background: "#1a6a3a", color: "#e8f4e8", border: "none", borderRadius: 6, padding: "7px 12px", fontWeight: 700, cursor: "pointer", fontSize: 13 };
-const inputStyle = { background: "#0d150d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "10px 12px", fontSize: 14, width: "100%", boxSizing: "border-box" };
+const btnSmall = { background: "#1a1a1a", color: "#e8e8e8", border: "none", borderRadius: 6, padding: "7px 12px", fontWeight: 700, cursor: "pointer", fontSize: 13 };
+const inputStyle = { background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "10px 12px", fontSize: 14, width: "100%", boxSizing: "border-box" };
 
 function ScoreBadge({ score, color = "#c9a227" }) {
   return (
@@ -100,31 +100,31 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
   const pts = showResult && userGuess ? calcPoints(userGuess, match) : null;
 
   return (
-    <div style={{ background: "#1a2a1a", border: "1px solid #2d4a2d", borderRadius: 10, padding: "14px 16px", marginBottom: 10, position: "relative" }}>
+    <div style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 10, padding: "14px 16px", marginBottom: 10, position: "relative" }}>
       {pts !== null && (
         <div style={{ position: "absolute", top: 8, right: 10, background: pts > 0 ? "#c9a227" : "#333", color: pts > 0 ? "#111" : "#888", fontWeight: 900, fontSize: 12, borderRadius: 20, padding: "2px 10px" }}>
           {pts > 0 ? `+${pts} pts` : "0 pts"}
         </div>
       )}
-      <div style={{ fontSize: 11, color: "#5a8a5a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+      <div style={{ fontSize: 11, color: "#888888", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
         Grupo {match.group} · {match.round} · {match.phase}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8f4e8" }}>
+        <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>
           {FLAGS[match.home] || "🏳"} {match.home}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
           {hasScore ? (
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <ScoreBadge score={match.scoreHome} color="#2adb6a" />
-              <span style={{ color: "#5a8a5a", fontWeight: 900 }}>×</span>
-              <ScoreBadge score={match.scoreAway} color="#2adb6a" />
+              <ScoreBadge score={match.scoreHome} color="#c9a227" />
+              <span style={{ color: "#888888", fontWeight: 900 }}>×</span>
+              <ScoreBadge score={match.scoreAway} color="#c9a227" />
             </div>
           ) : (
-            <span style={{ color: "#4a6a4a", fontSize: 13, fontStyle: "italic" }}>Aguardando</span>
+            <span style={{ color: "#555555", fontSize: 13, fontStyle: "italic" }}>Aguardando</span>
           )}
         </div>
-        <div style={{ flex: 1, textAlign: "left", fontWeight: 700, fontSize: 15, color: "#e8f4e8" }}>
+        <div style={{ flex: 1, textAlign: "left", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>
           {FLAGS[match.away] || "🏳"} {match.away}
         </div>
       </div>
@@ -132,7 +132,7 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
       {isAdmin && !hasScore && (
         <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
           <input type="number" min="0" max="20" value={h} onChange={e => setH(e.target.value)} placeholder="Casa" style={inputSm} />
-          <span style={{ color: "#5a8a5a" }}>×</span>
+          <span style={{ color: "#888888" }}>×</span>
           <input type="number" min="0" max="20" value={a} onChange={e => setA(e.target.value)} placeholder="Fora" style={inputSm} />
           <button onClick={() => { if (h !== "" && a !== "") { onSetScore(match.id, parseInt(h), parseInt(a)); setH(""); setA(""); }}} style={btnGold}>
             ✓ Confirmar Placar
@@ -142,9 +142,9 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
 
       {!isAdmin && !hasScore && !userGuess && (
         <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
-          <span style={{ color: "#8aaa8a", fontSize: 12 }}>Seu palpite:</span>
+          <span style={{ color: "#aaaaaa", fontSize: 12 }}>Seu palpite:</span>
           <input type="number" min="0" max="20" value={guessH} onChange={e => setGuessH(e.target.value)} placeholder="?" style={inputSm} />
-          <span style={{ color: "#5a8a5a" }}>×</span>
+          <span style={{ color: "#888888" }}>×</span>
           <input type="number" min="0" max="20" value={guessA} onChange={e => setGuessA(e.target.value)} placeholder="?" style={inputSm} />
           <button onClick={() => { if (guessH !== "" && guessA !== "") { onSetScore(match.id, parseInt(guessH), parseInt(guessA)); setGuessH(""); setGuessA(""); }}} style={btnSmall}>
             Enviar
@@ -153,9 +153,9 @@ function MatchCard({ match, onSetScore, isAdmin, userGuess, showResult }) {
       )}
 
       {!isAdmin && userGuess && (
-        <div style={{ marginTop: 8, textAlign: "center", color: "#8aaa8a", fontSize: 12 }}>
+        <div style={{ marginTop: 8, textAlign: "center", color: "#aaaaaa", fontSize: 12 }}>
           Seu palpite: <strong style={{ color: "#c9a227" }}>{userGuess.scoreHome} × {userGuess.scoreAway}</strong>
-          {hasScore && <span style={{ marginLeft: 8, color: pts > 0 ? "#2adb6a" : "#aa4a4a" }}>{pts > 0 ? "✓ Acertou!" : "✗ Errou"}</span>}
+          {hasScore && <span style={{ marginLeft: 8, color: pts > 0 ? "#c9a227" : "#aa4a4a" }}>{pts > 0 ? "✓ Acertou!" : "✗ Errou"}</span>}
         </div>
       )}
     </div>
@@ -263,35 +263,35 @@ export default function App() {
     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
       {groups.map(g => (
         <button key={g} onClick={() => setFilterGroup(g)} style={{
-          background: filterGroup === g ? "#c9a227" : "#1a2a1a",
-          color: filterGroup === g ? "#111" : "#8aaa8a",
-          border: "1px solid #2d4a2d", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
+          background: filterGroup === g ? "#c9a227" : "#161616",
+          color: filterGroup === g ? "#111" : "#aaaaaa",
+          border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
         }}>{g === "Todos" ? "Todos" : `Grupo ${g}`}</button>
       ))}
       {knockoutMatches.length > 0 && (
         <button onClick={() => setFilterGroup("Mata-mata")} style={{
-          background: filterGroup === "Mata-mata" ? "#c9a227" : "#1a2a1a",
-          color: filterGroup === "Mata-mata" ? "#111" : "#8aaa8a",
-          border: "1px solid #2d4a2d", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
+          background: filterGroup === "Mata-mata" ? "#c9a227" : "#161616",
+          color: filterGroup === "Mata-mata" ? "#111" : "#aaaaaa",
+          border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
         }}>⚔️ Mata-mata</button>
       )}
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0d150d", color: "#e8f4e8", fontFamily: "'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#e8e8e8", fontFamily: "'Segoe UI', sans-serif" }}>
       {/* HEADER */}
-      <div style={{ background: "linear-gradient(135deg, #0d2a0d 0%, #1a4a1a 50%, #0d2a0d 100%)", borderBottom: "3px solid #c9a227", padding: "20px 16px 0", textAlign: "center" }}>
-        <div style={{ fontSize: 11, letterSpacing: 4, color: "#c9a227", fontWeight: 700, marginBottom: 4 }}>IRON JUNGLE ACADEMIA</div>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: -0.5 }}>
-          ⚽ DESAFIO DOS <span style={{ color: "#c9a227" }}>PLACARES</span>
+      <div style={{ background: "linear-gradient(180deg, #111 0%, #1a1a1a 100%)", borderBottom: "3px solid #c9a227", padding: "20px 16px 0", textAlign: "center" }}>
+        <img src="/logo.png" alt="Iron Jungle" style={{ height: 72, marginBottom: 8, filter: "drop-shadow(0 2px 8px rgba(201,162,39,0.4))" }} />
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: "#fff", letterSpacing: 1, textTransform: "uppercase" }}>
+          DESAFIO DOS <span style={{ color: "#c9a227" }}>PLACARES</span>
         </h1>
-        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 12 }}>Copa do Mundo 2026 · EUA, Canadá & México</div>
+        <div style={{ fontSize: 12, color: "#666", marginBottom: 12 }}>Copa do Mundo 2026 · EUA, Canadá & México</div>
         <div style={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
           {playerTabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
               background: tab === t.id ? "#c9a227" : "transparent",
-              color: tab === t.id ? "#111" : "#8aaa8a",
+              color: tab === t.id ? "#111" : "#aaaaaa",
               border: "none", padding: "8px 14px", cursor: "pointer",
               fontWeight: tab === t.id ? 900 : 600, fontSize: 13, borderRadius: "6px 6px 0 0",
             }}>{t.label}</button>
@@ -310,17 +310,17 @@ export default function App() {
                   <div>
                     <div style={{ textAlign: "center", padding: "30px 0 20px" }}>
                       <div style={{ fontSize: 40, marginBottom: 8 }}>🎯</div>
-                      <div style={{ color: "#8aaa8a", marginBottom: 20 }}>Faça login para enviar seus palpites</div>
+                      <div style={{ color: "#aaaaaa", marginBottom: 20 }}>Faça login para enviar seus palpites</div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       <div>
-                        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 4 }}>Nome</div>
+                        <div style={{ fontSize: 12, color: "#888888", marginBottom: 4 }}>Nome</div>
                         <input value={loginName} onChange={e => { setLoginName(e.target.value); setLoginError(""); }}
                           onKeyDown={e => e.key === "Enter" && loginPlayer()}
                           placeholder="Seu nome..." style={inputStyle} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 4 }}>Senha</div>
+                        <div style={{ fontSize: 12, color: "#888888", marginBottom: 4 }}>Senha</div>
                         <input type="password" value={loginPass} onChange={e => { setLoginPass(e.target.value); setLoginError(""); }}
                           onKeyDown={e => e.key === "Enter" && loginPlayer()}
                           placeholder="Sua senha..." style={inputStyle} />
@@ -329,7 +329,7 @@ export default function App() {
                       <button onClick={loginPlayer} style={{ ...btnGold, padding: "11px", fontSize: 15, borderRadius: 8, marginTop: 4 }}>
                         Entrar
                       </button>
-                      <button onClick={() => setRegisterMode(true)} style={{ background: "transparent", color: "#5a8a5a", border: "1px solid #2d4a2d", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13 }}>
+                      <button onClick={() => setRegisterMode(true)} style={{ background: "transparent", color: "#888888", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13 }}>
                         Ainda não tenho cadastro
                       </button>
                     </div>
@@ -338,21 +338,21 @@ export default function App() {
                   <div>
                     <div style={{ textAlign: "center", padding: "30px 0 20px" }}>
                       <div style={{ fontSize: 40, marginBottom: 8 }}>📝</div>
-                      <div style={{ color: "#8aaa8a", marginBottom: 20 }}>Criar conta</div>
+                      <div style={{ color: "#aaaaaa", marginBottom: 20 }}>Criar conta</div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       <div>
-                        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 4 }}>Nome</div>
+                        <div style={{ fontSize: 12, color: "#888888", marginBottom: 4 }}>Nome</div>
                         <input value={newPlayerName} onChange={e => setNewPlayerName(e.target.value)}
                           placeholder="Seu nome completo..." style={inputStyle} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 4 }}>Senha</div>
+                        <div style={{ fontSize: 12, color: "#888888", marginBottom: 4 }}>Senha</div>
                         <input type="password" value={newPlayerPass} onChange={e => setNewPlayerPass(e.target.value)}
                           placeholder="Crie uma senha..." style={inputStyle} />
                       </div>
                       <div>
-                        <div style={{ fontSize: 12, color: "#5a8a5a", marginBottom: 4 }}>Confirmar senha</div>
+                        <div style={{ fontSize: 12, color: "#888888", marginBottom: 4 }}>Confirmar senha</div>
                         <input type="password" value={newPlayerPassConfirm} onChange={e => setNewPlayerPassConfirm(e.target.value)}
                           onKeyDown={e => e.key === "Enter" && registerPlayer()}
                           placeholder="Repita a senha..." style={inputStyle} />
@@ -361,7 +361,7 @@ export default function App() {
                         Criar conta
                       </button>
                       <button onClick={() => { setRegisterMode(false); setNewPlayerName(""); setNewPlayerPass(""); setNewPlayerPassConfirm(""); }}
-                        style={{ background: "transparent", color: "#5a8a5a", border: "1px solid #2d4a2d", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13 }}>
+                        style={{ background: "transparent", color: "#888888", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13 }}>
                         Voltar ao login
                       </button>
                     </div>
@@ -371,19 +371,19 @@ export default function App() {
             ) : (
               <div>
                 {/* Player header */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, background: "#0d2a0d", borderRadius: 10, padding: "10px 14px", border: "1px solid #2d4a2d" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, background: "#111111", borderRadius: 10, padding: "10px 14px", border: "1px solid #2a2a2a" }}>
                   <div>
-                    <div style={{ fontSize: 12, color: "#5a8a5a" }}>Logado como</div>
+                    <div style={{ fontSize: 12, color: "#888888" }}>Logado como</div>
                     <div style={{ fontWeight: 900, fontSize: 17, color: "#c9a227" }}>
                       {players.find(p => p.id === activePlayer)?.name}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: "#e8f4e8" }}>{calcPlayerScore(activePlayer).total}</div>
-                      <div style={{ fontSize: 10, color: "#5a8a5a" }}>pontos</div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: "#e8e8e8" }}>{calcPlayerScore(activePlayer).total}</div>
+                      <div style={{ fontSize: 10, color: "#888888" }}>pontos</div>
                     </div>
-                    <button onClick={() => setActivePlayer(null)} style={{ background: "#2d4a2d", color: "#8aaa8a", border: "none", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Sair</button>
+                    <button onClick={() => setActivePlayer(null)} style={{ background: "#2a2a2a", color: "#aaaaaa", border: "none", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 12 }}>Sair</button>
                   </div>
                 </div>
                 <GroupFilter />
@@ -403,22 +403,22 @@ export default function App() {
             {filteredMatches.map(m => {
               const totalGuesses = players.filter(p => guesses[p.id]?.[m.id]).length;
               return (
-                <div key={m.id} style={{ background: "#1a2a1a", border: "1px solid #2d4a2d", borderRadius: 10, padding: "12px 16px", marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: "#5a8a5a", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+                <div key={m.id} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 10, padding: "12px 16px", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, color: "#888888", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
                     Grupo {m.group} · {m.round} · {m.phase}
-                    <span style={{ marginLeft: 8, color: "#4a7a4a" }}>· {totalGuesses} palpite(s)</span>
+                    <span style={{ marginLeft: 8, color: "#666666" }}>· {totalGuesses} palpite(s)</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8f4e8" }}>{FLAGS[m.home] || "🏳"} {m.home}</div>
+                    <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>{FLAGS[m.home] || "🏳"} {m.home}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       {m.scoreHome !== null
-                        ? <><ScoreBadge score={m.scoreHome} color="#2adb6a" /><span style={{ color: "#5a8a5a" }}>×</span><ScoreBadge score={m.scoreAway} color="#2adb6a" /></>
-                        : <span style={{ color: "#4a6a4a", fontSize: 12, fontStyle: "italic" }}>Aguardando</span>}
+                        ? <><ScoreBadge score={m.scoreHome} color="#c9a227" /><span style={{ color: "#888888" }}>×</span><ScoreBadge score={m.scoreAway} color="#c9a227" /></>
+                        : <span style={{ color: "#555555", fontSize: 12, fontStyle: "italic" }}>Aguardando</span>}
                     </div>
-                    <div style={{ flex: 1, fontWeight: 700, fontSize: 15, color: "#e8f4e8" }}>{FLAGS[m.away] || "🏳"} {m.away}</div>
+                    <div style={{ flex: 1, fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}>{FLAGS[m.away] || "🏳"} {m.away}</div>
                   </div>
                   {m.scoreHome !== null && (
-                    <div style={{ marginTop: 8, fontSize: 12, color: "#5a8a5a" }}>
+                    <div style={{ marginTop: 8, fontSize: 12, color: "#888888" }}>
                       {(() => {
                         let exact = 0, goal = 0, win = 0;
                         players.forEach(p => {
@@ -442,7 +442,7 @@ export default function App() {
         {tab === "conta" && (
           <div>
             {!activePlayer ? (
-              <div style={{ textAlign: "center", padding: 40, color: "#4a6a4a" }}>
+              <div style={{ textAlign: "center", padding: 40, color: "#555555" }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>👤</div>
                 <div>Faça login na aba Palpites para ver sua conta.</div>
               </div>
@@ -459,29 +459,29 @@ export default function App() {
                       <div style={{ background: "linear-gradient(135deg, #1a2a00, #0d2a1a)", border: "1px solid #c9a227", borderRadius: 12, padding: 20, marginBottom: 16, textAlign: "center" }}>
                         <div style={{ fontSize: 48, marginBottom: 4 }}>🏆</div>
                         <div style={{ fontSize: 22, fontWeight: 900, color: "#c9a227" }}>{p?.name}</div>
-                        <div style={{ fontSize: 13, color: "#5a8a5a", marginTop: 2 }}>Cadastrado em {p?.joinedAt}</div>
+                        <div style={{ fontSize: 13, color: "#888888", marginTop: 2 }}>Cadastrado em {p?.joinedAt}</div>
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
                         {[
                           { label: "Posição atual", value: `${pos}º lugar`, color: "#c9a227" },
-                          { label: "Total de pontos", value: `${score.total} pts`, color: "#2adb6a" },
-                          { label: "Palpites enviados", value: `${totalGuessed}/${matches.length}`, color: "#6aa8ff" },
-                          { label: "Jogos finalizados", value: `${totalFinished}`, color: "#e8f4e8" },
-                          { label: "Resultados certos", value: score.wins, color: "#8aaa8a" },
+                          { label: "Total de pontos", value: `${score.total} pts`, color: "#c9a227" },
+                          { label: "Palpites enviados", value: `${totalGuessed}/${matches.length}`, color: "#c9a227" },
+                          { label: "Jogos finalizados", value: `${totalFinished}`, color: "#e8e8e8" },
+                          { label: "Resultados certos", value: score.wins, color: "#aaaaaa" },
                           { label: "Placares exatos", value: score.exact, color: "#c9a227" },
                         ].map(({ label, value, color }) => (
-                          <div key={label} style={{ background: "#1a2a1a", border: "1px solid #2d4a2d", borderRadius: 10, padding: "12px 14px" }}>
-                            <div style={{ fontSize: 11, color: "#5a8a5a", marginBottom: 4 }}>{label}</div>
+                          <div key={label} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 10, padding: "12px 14px" }}>
+                            <div style={{ fontSize: 11, color: "#888888", marginBottom: 4 }}>{label}</div>
                             <div style={{ fontSize: 20, fontWeight: 900, color }}>{value}</div>
                           </div>
                         ))}
                       </div>
-                      <div style={{ background: "#0d2a0d", border: "1px solid #2d4a2d", borderRadius: 10, padding: 14 }}>
+                      <div style={{ background: "#111111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14 }}>
                         <div style={{ fontWeight: 700, marginBottom: 8, color: "#c9a227", fontSize: 13 }}>📋 Sistema de Pontuação</div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#8aaa8a" }}>
-                          <div>✓ Acertar <strong style={{ color: "#e8f4e8" }}>vencedor</strong> → <strong style={{ color: "#c9a227" }}>1 ponto</strong></div>
-                          <div>〜 Acertar <strong style={{ color: "#e8f4e8" }}>saldo de gols</strong> → <strong style={{ color: "#c9a227" }}>3 pontos</strong></div>
-                          <div>🎯 Acertar <strong style={{ color: "#e8f4e8" }}>placar exato</strong> → <strong style={{ color: "#c9a227" }}>5 pontos</strong></div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#aaaaaa" }}>
+                          <div>✓ Acertar <strong style={{ color: "#e8e8e8" }}>vencedor</strong> → <strong style={{ color: "#c9a227" }}>1 ponto</strong></div>
+                          <div>〜 Acertar <strong style={{ color: "#e8e8e8" }}>saldo de gols</strong> → <strong style={{ color: "#c9a227" }}>3 pontos</strong></div>
+                          <div>🎯 Acertar <strong style={{ color: "#e8e8e8" }}>placar exato</strong> → <strong style={{ color: "#c9a227" }}>5 pontos</strong></div>
                         </div>
                       </div>
                       <button onClick={() => setActivePlayer(null)} style={{ marginTop: 16, width: "100%", background: "#2d1a1a", color: "#aa6a6a", border: "1px solid #4a2a2a", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
@@ -501,14 +501,14 @@ export default function App() {
             {!adminMode ? (
               <div style={{ textAlign: "center", padding: 40 }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>🔐</div>
-                <div style={{ color: "#8aaa8a", marginBottom: 20 }}>Área exclusiva para administradores</div>
+                <div style={{ color: "#aaaaaa", marginBottom: 20 }}>Área exclusiva para administradores</div>
                 {!showPassInput ? (
                   <button onClick={() => setShowPassInput(true)} style={btnGold}>Entrar como Admin</button>
                 ) : (
                   <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
                     <input type="password" value={adminPass} onChange={e => setAdminPass(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter") { if (adminPass === ADMIN_PASSWORD) { setAdminMode(true); setAdminPass(""); setShowPassInput(false); } else alert("Senha incorreta!"); }}}
-                      placeholder="Senha admin..." style={{ background: "#0d150d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "10px 14px", fontSize: 14 }} />
+                      placeholder="Senha admin..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "10px 14px", fontSize: 14 }} />
                     <button onClick={() => { if (adminPass === ADMIN_PASSWORD) { setAdminMode(true); setAdminPass(""); setShowPassInput(false); } else alert("Senha incorreta!"); }} style={btnGold}>Entrar</button>
                   </div>
                 )}
@@ -521,40 +521,55 @@ export default function App() {
                 </div>
 
                 {/* RANKING - só visível para admin */}
-                <div style={{ background: "#0d2a0d", border: "1px solid #2d4a2d", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                <div style={{ background: "#111111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
                   <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Ranking Atual</div>
                   {ranking.length === 0 ? (
-                    <div style={{ color: "#4a6a4a", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
+                    <div style={{ color: "#555555", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
                   ) : ranking.map((p, i) => (
                     <div key={p.id} style={{
                       display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", marginBottom: 6,
-                      background: "#1a2a1a", borderRadius: 8,
-                      border: `1px solid ${i === 0 ? "#c9a227" : i === 1 ? "#888" : i === 2 ? "#cd7f32" : "#2d4a2d"}`
+                      background: "#161616", borderRadius: 8,
+                      border: `1px solid ${i === 0 ? "#c9a227" : i === 1 ? "#888" : i === 2 ? "#cd7f32" : "#2a2a2a"}`
                     }}>
-                      <div style={{ fontWeight: 900, minWidth: 28, color: i === 0 ? "#c9a227" : i === 1 ? "#ccc" : i === 2 ? "#cd7f32" : "#5a8a5a" }}>
+                      <div style={{ fontWeight: 900, minWidth: 28, color: i === 0 ? "#c9a227" : i === 1 ? "#ccc" : i === 2 ? "#cd7f32" : "#888888" }}>
                         {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i+1}º`}
                       </div>
                       <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
-                      <div style={{ fontSize: 11, color: "#5a8a5a" }}>🎯{p.exact} · ✓{p.wins}</div>
-                      <div style={{ fontWeight: 900, color: i === 0 ? "#c9a227" : "#e8f4e8", fontSize: 16 }}>{p.total}pts</div>
+                      <div style={{ fontSize: 11, color: "#888888" }}>🎯{p.exact} · ✓{p.wins}</div>
+                      <div style={{ fontWeight: 900, color: i === 0 ? "#c9a227" : "#e8e8e8", fontSize: 16 }}>{p.total}pts</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ALUNOS CADASTRADOS */}
+                <div style={{ background: "#111111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                  <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>👤 Alunos Cadastrados ({players.length})</div>
+                  {players.length === 0 ? (
+                    <div style={{ color: "#555555", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
+                  ) : players.map(p => (
+                    <div key={p.id} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px 14px", marginBottom: 6, display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ flex: 1, fontWeight: 700 }}>{p.name}</div>
+                      <div style={{ fontSize: 12, color: "#888888" }}>{p.joinedAt}</div>
+                      <button onClick={() => { if (window.confirm(`Remover ${p.name}?`)) setPlayers(prev => prev.filter(x => x.id !== p.id)); }}
+                        style={{ background: "transparent", color: "#6a4a4a", border: "none", cursor: "pointer", fontSize: 18 }}>×</button>
                     </div>
                   ))}
                 </div>
 
                 {/* Criar jogo mata-mata */}
-                <div style={{ background: "#0d2a0d", border: "1px solid #2d4a2d", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                <div style={{ background: "#111111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 16 }}>
                   <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 10 }}>➕ Criar Jogo (Mata-mata)</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <select value={newMatchForm.phase} onChange={e => setNewMatchForm(p => ({ ...p, phase: e.target.value }))}
-                      style={{ background: "#0d150d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "8px 12px" }}>
+                      style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }}>
                       {["Round of 32", "Oitavas", "Quartas", "Semifinal", "Terceiro Lugar", "Final"].map(ph => (
                         <option key={ph} value={ph}>{ph}</option>
                       ))}
                     </select>
                     <input value={newMatchForm.home} onChange={e => setNewMatchForm(p => ({ ...p, home: e.target.value }))}
-                      placeholder="Time da casa..." style={{ background: "#0d150d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "8px 12px" }} />
+                      placeholder="Time da casa..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
                     <input value={newMatchForm.away} onChange={e => setNewMatchForm(p => ({ ...p, away: e.target.value }))}
-                      placeholder="Time visitante..." style={{ background: "#0d150d", border: "1px solid #2d4a2d", color: "#e8f4e8", borderRadius: 6, padding: "8px 12px" }} />
+                      placeholder="Time visitante..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
                     <button onClick={() => {
                       if (!newMatchForm.home || !newMatchForm.away) return;
                       const newM = { id: Date.now(), group: "MM", round: newMatchForm.phase, phase: newMatchForm.phase, home: newMatchForm.home, away: newMatchForm.away, scoreHome: null, scoreAway: null, locked: false };
@@ -565,24 +580,13 @@ export default function App() {
                 </div>
 
                 {/* Inserir placares */}
-                <div style={{ fontWeight: 700, color: "#8aaa8a", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
+                <div style={{ fontWeight: 700, color: "#aaaaaa", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
                 <GroupFilter />
                 {filteredMatches.map(m => (
                   <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} userGuess={null} showResult={false} />
                 ))}
 
-                {/* Gerenciar alunos */}
-                <div style={{ marginTop: 20, fontWeight: 700, color: "#8aaa8a", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>ALUNOS CADASTRADOS ({players.length})</div>
-                {players.map(p => (
-                  <div key={p.id} style={{ background: "#1a2a1a", border: "1px solid #2d4a2d", borderRadius: 8, padding: "10px 14px", marginBottom: 6, display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ flex: 1, fontWeight: 700 }}>{p.name}</div>
-                    <div style={{ fontSize: 12, color: "#5a8a5a" }}>{p.joinedAt}</div>
-                    <button onClick={() => { if (window.confirm(`Remover ${p.name}?`)) setPlayers(prev => prev.filter(x => x.id !== p.id)); }}
-                      style={{ background: "transparent", color: "#6a4a4a", border: "none", cursor: "pointer", fontSize: 18 }}>×</button>
-                  </div>
-                ))}
-
-                <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a2a1a" }}>
+                <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #161616" }}>
                   <button onClick={() => { if (window.confirm("Resetar TUDO? Isso apaga todos os dados!")) { setMatches(INITIAL_MATCHES); setPlayers([]); setGuesses({}); setActivePlayer(null); }}}
                     style={{ background: "#2d1a1a", color: "#aa6a6a", border: "1px solid #4a2a2a", borderRadius: 6, padding: "8px 16px", cursor: "pointer", fontSize: 13 }}>
                     🗑️ Resetar todos os dados
