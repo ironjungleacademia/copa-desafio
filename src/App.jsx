@@ -105,7 +105,7 @@ function ScoreBadge({ score, color = "#c9a227" }) {
   );
 }
 
-function MatchCard({ match, onSetScore, onToggleLock, isAdmin, userGuess, showResult }) {
+function MatchCard({ match, onSetScore, onToggleLock, onClearScore, isAdmin, userGuess, showResult }) {
   const [h, setH] = useState("");
   const [a, setA] = useState("");
   const [guessH, setGuessH] = useState("");
@@ -146,6 +146,15 @@ function MatchCard({ match, onSetScore, onToggleLock, isAdmin, userGuess, showRe
             borderRadius: 6, padding: "7px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700
           }}>
             {match.locked ? "🔒 Bloqueado" : "🔓 Liberar"}
+          </button>
+        </div>
+      )}
+
+      {isAdmin && hasScore && (
+        <div style={{ marginTop: 8, display: "flex", justifyContent: "center" }}>
+          <button onClick={() => { if (window.confirm("Apagar placar deste jogo?")) onClearScore(match.id); }}
+            style={{ background: "#1a0a0a", color: "#aa6a6a", border: "1px solid #3a1a1a", borderRadius: 6, padding: "5px 12px", cursor: "pointer", fontSize: 12 }}>
+            🗑️ Apagar placar
           </button>
         </div>
       )}
@@ -255,6 +264,11 @@ export default function App() {
     setTab("palpites");
   };
 
+  const clearScore = async (matchId) => {
+    const updated = matches.map(m => m.id === matchId ? { ...m, scoreHome: null, scoreAway: null } : m);
+    await saveMatches(updated);
+  };
+
   const toggleLock = async (matchId) => {
     const updated = matches.map(m => m.id === matchId ? { ...m, locked: !m.locked } : m);
     await saveMatches(updated);
@@ -299,6 +313,7 @@ export default function App() {
   const playerTabs = [
     { id: "palpites", label: "🎯 Palpites" },
     { id: "jogos", label: "⚽ Jogos" },
+    { id: "regras", label: "📖 Regras" },
     { id: "conta", label: "👤 Conta" },
     { id: "admin", label: "🔧 Admin" },
   ];
@@ -507,6 +522,98 @@ export default function App() {
           </div>
         )}
 
+        {/* ── REGRAS ── */}
+        {tab === "regras" && (
+          <div>
+            <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
+              <div style={{ fontSize: 44, marginBottom: 8 }}>📖</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#c9a227" }}>Como Funciona</div>
+              <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>Desafio dos Placares · Copa 2026</div>
+            </div>
+
+            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
+              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🚀 Como Participar</div>
+              {[
+                { n: "1", txt: "Crie sua conta com nome e senha na aba Palpites." },
+                { n: "2", txt: "Escolha um jogo e digite o placar que você acha que vai acontecer." },
+                { n: "3", txt: "Envie seu palpite antes do jogo começar — após o início os palpites são bloqueados." },
+                { n: "4", txt: "Após o jogo, o sistema pontua automaticamente e atualiza o ranking." },
+              ].map(({ n, txt }) => (
+                <div key={n} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 10 }}>
+                  <div style={{ background: "#c9a227", color: "#111", fontWeight: 900, fontSize: 13, borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{n}</div>
+                  <div style={{ color: "#aaa", fontSize: 14, lineHeight: 1.5 }}>{txt}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
+              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Sistema de Pontuação</div>
+              {[
+                { pts: 1, icon: "✓", title: "Acertar o vencedor", desc: "Você acertou qual time ganhou, ou que seria empate." },
+                { pts: 3, icon: "⚽", title: "Acertar o total de gols", desc: "A soma dos gols dos dois times no seu palpite foi igual ao resultado real." },
+                { pts: 5, icon: "🎯", title: "Acertar o placar exato", desc: "Você acertou o placar certinho. Já inclui os pontos anteriores." },
+              ].map(({ pts, icon, title, desc }) => (
+                <div key={pts} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1a1a1a" }}>
+                  <div style={{ background: "#1a1a00", border: "1px solid #c9a227", borderRadius: 8, padding: "6px 10px", textAlign: "center", minWidth: 44, flexShrink: 0 }}>
+                    <div style={{ fontSize: 18 }}>{icon}</div>
+                    <div style={{ color: "#c9a227", fontWeight: 900, fontSize: 13 }}>{pts} pt{pts > 1 ? "s" : ""}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#e8e8e8", marginBottom: 2 }}>{title}</div>
+                    <div style={{ color: "#666", fontSize: 13, lineHeight: 1.4 }}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ background: "#1a1a00", borderRadius: 8, padding: 10, fontSize: 13, color: "#c9a227", fontWeight: 700, textAlign: "center" }}>
+                🌟 Placar exato = até 9 pontos num único jogo!
+              </div>
+            </div>
+
+            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
+              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>📊 Exemplos Práticos</div>
+              {[
+                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 1 × 0", itens: [
+                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: false, txt: "Total de gols: apostou 1, saíram 3 → 0 pontos" },
+                  { ok: false, txt: "Placar exato: errou → 0 pontos" },
+                ], total: 1 },
+                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 3 × 0", itens: [
+                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +3 pontos" },
+                  { ok: false, txt: "Placar exato: errou → 0 pontos" },
+                ], total: 4 },
+                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 2 × 1", itens: [
+                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +3 pontos" },
+                  { ok: true, txt: "Placar exato: acertou! → +5 pontos" },
+                ], total: 9 },
+              ].map(({ real, palpite, itens, total }, i) => (
+                <div key={i} style={{ background: "#161616", borderRadius: 8, padding: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
+                    <div style={{ fontSize: 12, color: "#888" }}>Resultado: <strong style={{ color: "#e8e8e8" }}>{real}</strong></div>
+                    <div style={{ fontSize: 12, color: "#888" }}>Palpite: <strong style={{ color: "#c9a227" }}>{palpite}</strong></div>
+                  </div>
+                  {itens.map((item, j) => (
+                    <div key={j} style={{ fontSize: 13, color: item.ok ? "#c9a227" : "#555", marginBottom: 3 }}>
+                      {item.ok ? "✅" : "❌"} {item.txt}
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 8, fontWeight: 900, color: "#c9a227", fontSize: 14, textAlign: "right" }}>
+                    Total: {total} ponto{total !== 1 ? "s" : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ background: "#0a1a0a", border: "1px solid #1a3a1a", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+              <div style={{ fontWeight: 900, color: "#4a8a4a", marginBottom: 6, fontSize: 13 }}>💡 Dica</div>
+              <div style={{ color: "#666", fontSize: 13, lineHeight: 1.5 }}>
+                Mesmo que erre o placar exato, você ainda pode pontuar acertando o vencedor ou o total de gols. Vale a pena apostar em todos os jogos!
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── ADMIN ── */}
         {tab === "admin" && (
           <div>
@@ -585,7 +692,7 @@ export default function App() {
                 <div style={{ fontWeight: 700, color: "#555", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
                 <GroupFilter />
                 {filteredMatches.map(m => (
-                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} userGuess={null} showResult={false} />
+                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} userGuess={null} showResult={false} />
                 ))}
 
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
