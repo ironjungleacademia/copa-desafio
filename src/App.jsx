@@ -693,17 +693,17 @@ export default function App() {
               <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>📊 Exemplos Práticos</div>
               {[
                 { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 1 × 0", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
                   { ok: false, txt: "Total de gols: apostou 1, saíram 3 → 0 pontos" },
                   { ok: false, txt: "Placar exato: errou → 0 pontos" },
                 ], total: 2 },
                 { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 3 × 0", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
                   { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +2 pontos" },
                   { ok: false, txt: "Placar exato: errou → 0 pontos" },
                 ], total: 4 },
                 { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 2 × 1", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +1 ponto" },
+                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
                   { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +2 pontos" },
                   { ok: true, txt: "Placar exato: acertou! → +4 pontos" },
                 ], total: 8 },
