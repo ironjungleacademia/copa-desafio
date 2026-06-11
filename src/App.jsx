@@ -383,6 +383,9 @@ export default function App() {
                         <input value={loginName} onChange={e => { setLoginName(e.target.value); setLoginError(""); }} onKeyDown={e => e.key === "Enter" && loginPlayer()} placeholder="Seu nome..." style={inputStyle} /></div>
                       <div><div style={{ fontSize: 12, color: "#555", marginBottom: 4 }}>Senha</div>
                         <input type="password" value={loginPass} onChange={e => { setLoginPass(e.target.value); setLoginError(""); }} onKeyDown={e => e.key === "Enter" && loginPlayer()} placeholder="Sua senha..." style={inputStyle} /></div>
+                      <div style={{ background: "#1a1400", border: "1px solid #3a2a00", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#a08030", lineHeight: 1.5 }}>
+                        ⚠️ O nome deve ser <strong>exatamente igual</strong> ao cadastro. Ex: se cadastrou como "João Silva", não vai funcionar digitar só "João".
+                      </div>
                       {loginError && <div style={{ color: "#e05555", fontSize: 13, textAlign: "center" }}>{loginError}</div>}
                       <button onClick={loginPlayer} style={{ ...btnGold, padding: "11px", fontSize: 15, borderRadius: 8, marginTop: 4 }}>Entrar</button>
                       <button onClick={() => setRegisterMode(true)} style={{ background: "transparent", color: "#555", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13 }}>Ainda não tenho cadastro</button>
