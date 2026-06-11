@@ -82,7 +82,17 @@ function getMatchResult(h, a) {
 function calcPoints(guess, match) {
   if (match.scoreHome === null || match.scoreAway === null) return 0;
   let pts = 0;
-  if (getMatchResult(guess.scoreHome, guess.scoreAway) === getMatchResult(match.scoreHome, match.scoreAway)) pts += 1;
+  const realDraw = match.scoreHome === match.scoreAway;
+  const guessDraw = guess.scoreHome === guess.scoreAway;
+  const realWinner = realDraw && match.penaltyWinner ? match.penaltyWinner : getMatchResult(match.scoreHome, match.scoreAway);
+  const guessWinner = getMatchResult(guess.scoreHome, guess.scoreAway);
+  // Vencedor: em empate no mata-mata, compara penaltyWinner com quem o aluno apostou ganhar
+  if (!realDraw && guessWinner === realWinner) pts += 1;
+  if (realDraw && match.penaltyWinner) {
+    // aluno apostou empate E acertou quem avança nos pênaltis não é possível — apenas 1pt se apostou empate
+    if (guessDraw) pts += 1;
+  }
+  if (!realDraw && guessWinner === realWinner) {} // já contado
   if (match.scoreHome + match.scoreAway === guess.scoreHome + guess.scoreAway) pts += 3;
   if (match.scoreHome === guess.scoreHome && match.scoreAway === guess.scoreAway) pts += 5;
   return pts;
@@ -105,12 +115,14 @@ function ScoreBadge({ score, color = "#c9a227" }) {
   );
 }
 
-function MatchCard({ match, onSetScore, onToggleLock, onClearScore, isAdmin, userGuess, showResult }) {
+function MatchCard({ match, onSetScore, onToggleLock, onClearScore, onSetPenalty, isAdmin, userGuess, showResult }) {
   const [h, setH] = useState("");
   const [a, setA] = useState("");
   const [guessH, setGuessH] = useState("");
   const [guessA, setGuessA] = useState("");
   const hasScore = match.scoreHome !== null && match.scoreAway !== null;
+  const isKnockout = match.phase !== "Grupos";
+  const isDraw = hasScore && match.scoreHome === match.scoreAway;
   const pts = showResult && userGuess ? calcPoints(userGuess, match) : null;
 
   return (
@@ -133,6 +145,13 @@ function MatchCard({ match, onSetScore, onToggleLock, onClearScore, isAdmin, use
         <div style={{ flex: 1, textAlign: "left", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}><Flag country={match.away} /> {match.away}</div>
       </div>
 
+      {/* Pênaltis - exibe vencedor se empate no mata-mata */}
+      {isKnockout && isDraw && match.penaltyWinner && (
+        <div style={{ textAlign: "center", marginTop: 6, fontSize: 12, color: "#c9a227", fontWeight: 700 }}>
+          🥅 Pênaltis: {match.penaltyWinner} avança
+        </div>
+      )}
+
       {isAdmin && !hasScore && (
         <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
           <input type="number" min="0" max="20" value={h} onChange={e => setH(e.target.value)} placeholder="Casa" style={inputSm} />
@@ -147,6 +166,25 @@ function MatchCard({ match, onSetScore, onToggleLock, onClearScore, isAdmin, use
           }}>
             {match.locked ? "🔒 Bloqueado" : "🔓 Liberar"}
           </button>
+        </div>
+      )}
+
+      {/* Admin: selecionar vencedor nos pênaltis */}
+      {isAdmin && isKnockout && isDraw && (
+        <div style={{ marginTop: 10, background: "#111", borderRadius: 8, padding: 10, textAlign: "center" }}>
+          <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>🥅 Quem venceu nos pênaltis?</div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={() => onSetPenalty(match.id, match.home)} style={{
+              background: match.penaltyWinner === match.home ? "#c9a227" : "#1a1a1a",
+              color: match.penaltyWinner === match.home ? "#111" : "#888",
+              border: "1px solid #2a2a2a", borderRadius: 6, padding: "6px 14px", cursor: "pointer", fontWeight: 700, fontSize: 13
+            }}>{match.home}</button>
+            <button onClick={() => onSetPenalty(match.id, match.away)} style={{
+              background: match.penaltyWinner === match.away ? "#c9a227" : "#1a1a1a",
+              color: match.penaltyWinner === match.away ? "#111" : "#888",
+              border: "1px solid #2a2a2a", borderRadius: 6, padding: "6px 14px", cursor: "pointer", fontWeight: 700, fontSize: 13
+            }}>{match.away}</button>
+          </div>
         </div>
       )}
 
@@ -262,6 +300,11 @@ export default function App() {
     setActivePlayer(found.id);
     setLoginName(""); setLoginPass("");
     setTab("palpites");
+  };
+
+  const setPenalty = async (matchId, winner) => {
+    const updated = matches.map(m => m.id === matchId ? { ...m, penaltyWinner: winner } : m);
+    await saveMatches(updated);
   };
 
   const clearScore = async (matchId) => {
@@ -495,16 +538,16 @@ export default function App() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
                     {[
-                      { label: "Posição atual", value: `${pos}º lugar`, color: "#c9a227" },
-                      { label: "Total de pontos", value: `${score.total} pts`, color: "#e8e8e8" },
+                      { label: "Pontos totais", value: `${score.total} pts`, color: "#c9a227" },
+                      { label: "Posição no ranking", value: "📋 Disponível semanalmente na academia", color: "#555", small: true },
                       { label: "Palpites enviados", value: `${Object.keys(guesses[activePlayer] || {}).length}/${matches.length}`, color: "#888" },
                       { label: "Jogos finalizados", value: matches.filter(m => m.scoreHome !== null).length, color: "#888" },
                       { label: "Resultados certos", value: score.wins, color: "#888" },
                       { label: "Placares exatos", value: score.exact, color: "#c9a227" },
-                    ].map(({ label, value, color }) => (
+                    ].map(({ label, value, color, small }) => (
                       <div key={label} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 10, padding: "12px 14px" }}>
                         <div style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{label}</div>
-                        <div style={{ fontSize: 20, fontWeight: 900, color }}>{value}</div>
+                        <div style={{ fontSize: small ? 11 : 20, fontWeight: 900, color, lineHeight: 1.4 }}>{value}</div>
                       </div>
                     ))}
                   </div>
@@ -695,7 +738,7 @@ export default function App() {
                 <div style={{ fontWeight: 700, color: "#555", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
                 <GroupFilter />
                 {filteredMatches.map(m => (
-                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} userGuess={null} showResult={false} />
+                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} onSetPenalty={setPenalty} userGuess={null} showResult={false} />
                 ))}
 
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
