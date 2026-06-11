@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
+import { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
 
 // ─── FIREBASE ────────────────────────────────────────────────────────────────
 
@@ -244,6 +244,9 @@ export default function App() {
   const [filterGroup, setFilterGroup] = useState("Todos");
   const [newMatchForm, setNewMatchForm] = useState({ phase: "Round of 32", home: "", away: "" });
   const [loading, setLoading] = useState(true);
+  const [chat, setChat] = useState([]);
+  const [chatMsg, setChatMsg] = useState("");
+  const chatEndRef = useRef(null);
   const ADMIN_PASSWORD = "ironjungle2026";
 
   // ── Firebase listeners ──
@@ -262,8 +265,36 @@ export default function App() {
     const unsubGuesses = onSnapshot(doc(db, "data", "guesses"), snap => {
       if (snap.exists()) setGuesses(snap.data().map || {});
     });
-    return () => { unsubMatches(); unsubPlayers(); unsubGuesses(); };
+    // Listen to chat
+    const unsubChat = onSnapshot(doc(db, "data", "chat"), snap => {
+      if (snap.exists()) setChat(snap.data().messages || []);
+    });
+    return () => { unsubMatches(); unsubPlayers(); unsubGuesses(); unsubChat(); };
   }, []);
+
+  const sendMessage = async () => {
+    const text = chatMsg.trim();
+    if (!text || !activePlayer) return;
+    const player = players.find(p => p.id === activePlayer);
+    if (!player) return;
+    const msg = { id: Date.now(), playerId: activePlayer, name: player.name, text, time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) };
+    setChatMsg("");
+    const ref = doc(db, "data", "chat");
+    try {
+      await updateDoc(ref, { messages: arrayUnion(msg) });
+    } catch {
+      await setDoc(ref, { messages: [msg] });
+    }
+  };
+
+  const deleteMessage = async (msgId) => {
+    const updated = chat.filter(m => m.id !== msgId);
+    await setDoc(doc(db, "data", "chat"), { messages: updated });
+  };
+
+  useEffect(() => {
+    if (tab === "chat") chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat, tab]);
 
   const saveMatches = async (list) => {
     setMatches(list);
@@ -356,6 +387,7 @@ export default function App() {
   const playerTabs = [
     { id: "palpites", label: "🎯 Palpites" },
     { id: "jogos", label: "⚽ Jogos" },
+    { id: "chat", label: "💬 Chat" },
     { id: "regras", label: "📖 Regras" },
     { id: "conta", label: "👤 Conta" },
     { id: "admin", label: "🔧 Admin" },
@@ -565,6 +597,53 @@ export default function App() {
                 </div>
               );
             })()}
+          </div>
+        )}
+
+        {/* ── CHAT ── */}
+        {tab === "chat" && (
+          <div style={{ display: "flex", flexDirection: "column", height: "70vh" }}>
+            <div style={{ flex: 1, overflowY: "auto", paddingBottom: 8 }}>
+              {chat.length === 0 ? (
+                <div style={{ textAlign: "center", padding: 40, color: "#444" }}>
+                  <div style={{ fontSize: 36, marginBottom: 8 }}>💬</div>
+                  <div>Nenhuma mensagem ainda.</div>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>Seja o primeiro a comentar!</div>
+                </div>
+              ) : chat.map(msg => {
+                const isMe = msg.playerId === activePlayer;
+                const isAdm = adminMode;
+                return (
+                  <div key={msg.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", gap: 8, marginBottom: 10, alignItems: "flex-end" }}>
+                    <div style={{ maxWidth: "75%" }}>
+                      {!isMe && <div style={{ fontSize: 11, color: "#c9a227", fontWeight: 700, marginBottom: 2, paddingLeft: 4 }}>{msg.name}</div>}
+                      <div style={{ background: isMe ? "#2a1a00" : "#1a1a1a", border: `1px solid ${isMe ? "#c9a227" : "#2a2a2a"}`, borderRadius: isMe ? "12px 12px 4px 12px" : "12px 12px 12px 4px", padding: "8px 12px", fontSize: 14, color: "#e8e8e8", lineHeight: 1.4 }}>
+                        {msg.text}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#444", marginTop: 2, textAlign: isMe ? "right" : "left", paddingLeft: 4 }}>{msg.time}</div>
+                    </div>
+                    {isAdm && (
+                      <button onClick={() => deleteMessage(msg.id)} style={{ background: "transparent", border: "none", color: "#3a1a1a", cursor: "pointer", fontSize: 14, padding: "0 2px", alignSelf: "center" }}>🗑️</button>
+                    )}
+                  </div>
+                );
+              })}
+              <div ref={chatEndRef} />
+            </div>
+
+            {!activePlayer ? (
+              <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, textAlign: "center", color: "#555", fontSize: 13 }}>
+                Faça login na aba Palpites para participar do chat.
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8, paddingTop: 8, borderTop: "1px solid #1a1a1a" }}>
+                <input value={chatMsg} onChange={e => setChatMsg(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && sendMessage()}
+                  placeholder="Digite uma mensagem..." maxLength={200}
+                  style={{ flex: 1, background: "#111", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 8, padding: "10px 12px", fontSize: 14 }} />
+                <button onClick={sendMessage} style={{ ...btnGold, borderRadius: 8, padding: "10px 16px", fontSize: 18 }}>➤</button>
+              </div>
+            )}
           </div>
         )}
 
