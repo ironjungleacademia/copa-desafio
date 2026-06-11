@@ -88,8 +88,8 @@ function calcPoints(guess, match) {
   const guessWinner = getMatchResult(guess.scoreHome, guess.scoreAway);
   // Vencedor: em empate no mata-mata, compara penaltyWinner com quem o aluno apostou ganhar
   if (getMatchResult(guess.scoreHome, guess.scoreAway) === getMatchResult(match.scoreHome, match.scoreAway)) pts += 2;
-  if (match.scoreHome + match.scoreAway === guess.scoreHome + guess.scoreAway) pts += 2;
-  if (match.scoreHome === guess.scoreHome && match.scoreAway === guess.scoreAway) pts += 4;
+
+  if (match.scoreHome === guess.scoreHome && match.scoreAway === guess.scoreAway) { pts = 5; }
   return pts;
 }
 
@@ -582,8 +582,8 @@ export default function App() {
                     <div style={{ fontWeight: 700, marginBottom: 8, color: "#c9a227", fontSize: 13 }}>📋 Sistema de Pontuação</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#888" }}>
                       <div>✓ Acertar <strong style={{ color: "#e8e8e8" }}>vencedor</strong> → <strong style={{ color: "#c9a227" }}>2 pontos</strong></div>
-                      <div>〜 Acertar <strong style={{ color: "#e8e8e8" }}>total de gols</strong> → <strong style={{ color: "#c9a227" }}>2 pontos</strong></div>
-                      <div>🎯 Acertar <strong style={{ color: "#e8e8e8" }}>placar exato</strong> → <strong style={{ color: "#c9a227" }}>4 pontos</strong></div>
+                      <div>〜 </div>
+                      <div>🎯 Acertar <strong style={{ color: "#e8e8e8" }}>placar exato</strong> → <strong style={{ color: "#c9a227" }}>5 pontos</strong> (já inclui o vencedor)</div>
                     </div>
                   </div>
                   <button onClick={() => setActivePlayer(null)} style={{ width: "100%", background: "#1a0a0a", color: "#aa6a6a", border: "1px solid #3a1a1a", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
@@ -670,8 +670,7 @@ export default function App() {
               <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Sistema de Pontuação</div>
               {[
                 { pts: 2, icon: "✓", title: "Acertar o vencedor", desc: "Você acertou qual time ganhou, ou que seria empate." },
-                { pts: 2, icon: "⚽", title: "Acertar o total de gols", desc: "A soma dos gols dos dois times no seu palpite foi igual ao resultado real." },
-                { pts: 4, icon: "🎯", title: "Acertar o placar exato", desc: "Você acertou o placar certinho. Já inclui os pontos anteriores." },
+                { pts: 5, icon: "🎯", title: "Acertar o placar exato", desc: "Você acertou o placar certinho. Já inclui os 2 pontos do vencedor." },
               ].map(({ pts, icon, title, desc }) => (
                 <div key={pts} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1a1a1a" }}>
                   <div style={{ background: "#1a1a00", border: "1px solid #c9a227", borderRadius: 8, padding: "6px 10px", textAlign: "center", minWidth: 44, flexShrink: 0 }}>
@@ -685,7 +684,7 @@ export default function App() {
                 </div>
               ))}
               <div style={{ background: "#1a1a00", borderRadius: 8, padding: 10, fontSize: 13, color: "#c9a227", fontWeight: 700, textAlign: "center" }}>
-                🌟 Placar exato = até 8 pontos num único jogo!
+                🌟 Placar exato = 5 pontos (já inclui o vencedor)!
               </div>
             </div>
 
@@ -694,19 +693,16 @@ export default function App() {
               {[
                 { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 1 × 0", itens: [
                   { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
-                  { ok: false, txt: "Total de gols: apostou 1, saíram 3 → 0 pontos" },
                   { ok: false, txt: "Placar exato: errou → 0 pontos" },
                 ], total: 2 },
-                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 3 × 0", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
-                  { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +2 pontos" },
+                { real: "Brasil 2 × 1 Argentina", palpite: "Argentina 1 × 0", itens: [
+                  { ok: false, txt: "Vencedor: apostou Argentina, ganhou Brasil → 0 pontos" },
                   { ok: false, txt: "Placar exato: errou → 0 pontos" },
-                ], total: 4 },
+                ], total: 0 },
                 { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 2 × 1", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
-                  { ok: true, txt: "Total de gols: apostou 3, saíram 3 → +2 pontos" },
-                  { ok: true, txt: "Placar exato: acertou! → +4 pontos" },
-                ], total: 8 },
+                  { ok: true, txt: "Vencedor (Brasil) → já incluso no placar exato" },
+                  { ok: true, txt: "Placar exato: acertou! → 5 pontos" },
+                ], total: 5 },
               ].map(({ real, palpite, itens, total }, i) => (
                 <div key={i} style={{ background: "#161616", borderRadius: 8, padding: 12, marginBottom: 10 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
@@ -728,7 +724,7 @@ export default function App() {
             <div style={{ background: "#0a1a0a", border: "1px solid #1a3a1a", borderRadius: 10, padding: 14, marginBottom: 12 }}>
               <div style={{ fontWeight: 900, color: "#4a8a4a", marginBottom: 6, fontSize: 13 }}>💡 Dica</div>
               <div style={{ color: "#666", fontSize: 13, lineHeight: 1.5 }}>
-                Mesmo que erre o placar exato, você ainda pode pontuar acertando o vencedor ou o total de gols. Vale a pena apostar em todos os jogos!
+                Mesmo que erre o placar exato, você ainda pontua 2 pontos acertando o vencedor. Vale a pena apostar em todos os jogos!
               </div>
             </div>
           </div>
