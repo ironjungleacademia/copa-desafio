@@ -339,6 +339,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [chat, setChat] = useState([]);
   const [chatMsg, setChatMsg] = useState("");
+  const [guessModal, setGuessModal] = useState(null);
   const chatEndRef = useRef(null);
   const ADMIN_PASSWORD = "ironjungle2026";
 
@@ -901,11 +902,50 @@ export default function App() {
                       <div key={p.id} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 8, padding: "10px 14px", marginBottom: 6, display: "flex", alignItems: "center", gap: 10 }}>
                         <div style={{ flex: 1, fontWeight: 700 }}>{p.name}</div>
                         <div style={{ fontSize: 12, color: "#555" }}>{p.joinedAt}</div>
+                        <button onClick={() => setGuessModal(p)} style={{ background: "#1a1a1a", color: "#888", border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12 }}>
+                          🎯 Palpites
+                        </button>
                         <button onClick={() => { if (window.confirm(`Remover ${p.name}?`)) savePlayers(players.filter(x => x.id !== p.id)); }}
                           style={{ background: "transparent", color: "#6a2a2a", border: "none", cursor: "pointer", fontSize: 18 }}>×</button>
                       </div>
                     ))}
                 </div>
+
+                {/* Modal palpites */}
+                {guessModal && (
+                  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+                    onClick={() => setGuessModal(null)}>
+                    <div style={{ background: "#161616", border: "1px solid #c9a227", borderRadius: 12, padding: 20, width: "100%", maxWidth: 480, maxHeight: "80vh", overflowY: "auto" }}
+                      onClick={e => e.stopPropagation()}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                        <div style={{ fontWeight: 900, color: "#c9a227", fontSize: 16 }}>🎯 {guessModal.name}</div>
+                        <button onClick={() => setGuessModal(null)} style={{ background: "transparent", color: "#888", border: "none", cursor: "pointer", fontSize: 22 }}>×</button>
+                      </div>
+                      {matches.map(m => {
+                        const g = (guesses[guessModal.id] || {})[m.id];
+                        if (!g) return null;
+                        return (
+                          <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#111", borderRadius: 8, marginBottom: 6 }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 13, color: "#e8e8e8" }}>{m.home} × {m.away}</div>
+                              {g.sentAt && <div style={{ fontSize: 11, color: "#444", marginTop: 2 }}>🕐 {g.sentAt}</div>}
+                            </div>
+                            <div style={{ fontWeight: 900, color: "#c9a227" }}>{g.scoreHome} × {g.scoreAway}</div>
+                            <button onClick={async () => {
+                              if (!window.confirm(`Excluir palpite de ${guessModal.name} em ${m.home} × ${m.away}?`)) return;
+                              const updated = { ...guesses, [guessModal.id]: { ...guesses[guessModal.id] } };
+                              delete updated[guessModal.id][m.id];
+                              await saveGuesses(updated);
+                            }} style={{ background: "transparent", color: "#6a2a2a", border: "none", cursor: "pointer", fontSize: 16 }}>🗑️</button>
+                          </div>
+                        );
+                      })}
+                      {Object.keys(guesses[guessModal.id] || {}).length === 0 && (
+                        <div style={{ color: "#444", fontSize: 13, textAlign: "center", padding: 20 }}>Nenhum palpite enviado.</div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Criar jogo mata-mata */}
                 <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 16 }}>
