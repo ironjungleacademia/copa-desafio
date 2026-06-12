@@ -759,14 +759,12 @@ export default function App() {
                     ? <div style={{ color: "#444", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
                     : (() => {
                         const uniqueScores = [...new Set(ranking.map(p => p.total))].sort((a,b) => b-a);
-                        let pos = 1;
-                        return ranking.map((p, i) => {
-                          if (i > 0 && p.total < ranking[i-1].total) pos = i + 1;
+                        return ranking.map((p) => {
                           const scoreRank = uniqueScores.indexOf(p.total) + 1;
                           const isGold = scoreRank === 1 && p.total > 0;
                           const isSilver = scoreRank === 2 && p.total > 0;
                           const isBronze = scoreRank === 3 && p.total > 0;
-                          const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${pos}º`;
+                          const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${scoreRank}º`;
                           const borderColor = isGold ? "#c9a227" : isSilver ? "#888" : isBronze ? "#cd7f32" : "#2a2a2a";
                           const medalColor = isGold ? "#c9a227" : isSilver ? "#ccc" : isBronze ? "#cd7f32" : "#555";
                           return (
