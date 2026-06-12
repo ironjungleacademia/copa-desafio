@@ -528,15 +528,14 @@ export default function App() {
                     <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}><Flag country={m.away} /> {m.away}</div>
                   </div>
                   {m.scoreHome !== null && (() => {
-                    let exact = 0, goal = 0, win = 0;
+                    let exact = 0, win = 0;
                     players.forEach(p => {
                       const g = guesses[p.id]?.[m.id];
                       if (!g) return;
                       if (m.scoreHome === g.scoreHome && m.scoreAway === g.scoreAway) exact++;
-                      else if (m.scoreHome - m.scoreAway === g.scoreHome - g.scoreAway) goal++;
                       else if (getMatchResult(m.scoreHome, m.scoreAway) === getMatchResult(g.scoreHome, g.scoreAway)) win++;
                     });
-                    return <div style={{ marginTop: 8, fontSize: 12, color: "#555" }}>🎯 {exact} exato · 〜 {goal} saldo · ✓ {win} resultado · ✗ {totalGuesses - exact - goal - win} erros</div>;
+                    return <div style={{ marginTop: 8, fontSize: 12, color: "#555" }}>🎯 {exact} exato · ✓ {win} resultado · ✗ {totalGuesses - exact - win} erros</div>;
                   })()}
                 </div>
               );
