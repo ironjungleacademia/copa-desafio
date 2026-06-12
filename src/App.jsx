@@ -623,9 +623,11 @@ export default function App() {
               const totalGuesses = players.filter(p => guesses[p.id]?.[m.id]).length;
               return (
                 <div key={m.id} style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 10, padding: "12px 16px", marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-                    {m.phase === "Grupos" ? `Grupo ${m.group} · ${m.round}` : m.phase}
-                    <span style={{ marginLeft: 8 }}>· {totalGuesses} palpite(s)</span>
+                  <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
+                    <span>{m.phase === "Grupos" ? `Grupo ${m.group} · ${m.round}` : m.phase} · {totalGuesses} palpite(s)</span>
+                    {m.date && <span style={{ color: "#3a3a3a", fontWeight: 600 }}>
+                      {new Date(`${m.date}T${m.time || "00:00"}`).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} · {m.time || ""}
+                    </span>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15 }}><Flag country={m.home} /> {m.home}</div>
@@ -934,7 +936,15 @@ export default function App() {
                   <button onClick={async () => {
                     if (!window.confirm("Atualizar datas dos jogos? Os palpites e placares serão mantidos.")) return;
                     const updated = matches.map(m => {
-                      const s = SCHEDULE.find(s => s.home === m.home && s.away === m.away && s.group === m.group);
+                      // Busca pelo par de times independente da ordem, e aceita Rep. Tcheca = Chéquia
+                      const normalize = (name) => name === "Rep. Tcheca" ? "chéquia" : name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                      const mHome = normalize(m.home);
+                      const mAway = normalize(m.away);
+                      const s = SCHEDULE.find(s => {
+                        const sHome = normalize(s.home);
+                        const sAway = normalize(s.away);
+                        return (sHome === mHome && sAway === mAway) || (sHome === mAway && sAway === mHome);
+                      });
                       if (s) return { ...m, date: s.date, time: s.time, round: s.round };
                       return m;
                     });
