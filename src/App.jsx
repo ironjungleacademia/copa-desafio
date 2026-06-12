@@ -448,7 +448,8 @@ export default function App() {
 
   const setPlayerGuess = async (matchId, h, a) => {
     if (!activePlayer) return;
-    const updated = { ...guesses, [activePlayer]: { ...(guesses[activePlayer] || {}), [matchId]: { scoreHome: h, scoreAway: a } } };
+    const sentAt = new Date().toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    const updated = { ...guesses, [activePlayer]: { ...(guesses[activePlayer] || {}), [matchId]: { scoreHome: h, scoreAway: a, sentAt } } };
     await saveGuesses(updated);
   };
 
@@ -923,6 +924,36 @@ export default function App() {
                       setNewMatchForm(p => ({ ...p, home: "", away: "" }));
                     }} style={btnGold}>Criar Jogo</button>
                   </div>
+                </div>
+
+                {/* Palpites por jogo */}
+                <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                  <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🕐 Palpites por Jogo</div>
+                  <GroupFilter />
+                  {filteredMatches.map(m => {
+                    const jogoPalpites = players.map(p => {
+                      const g = guesses[p.id]?.[m.id];
+                      if (!g) return null;
+                      return { name: p.name, scoreHome: g.scoreHome, scoreAway: g.scoreAway, sentAt: g.sentAt || null };
+                    }).filter(Boolean);
+                    if (jogoPalpites.length === 0) return null;
+                    return (
+                      <div key={m.id} style={{ marginBottom: 14 }}>
+                        <div style={{ fontSize: 12, color: "#888", fontWeight: 700, marginBottom: 6 }}>
+                          <Flag country={m.home} /> {m.home} × <Flag country={m.away} /> {m.away}
+                          {m.date && <span style={{ color: "#555", marginLeft: 8 }}>{new Date(`${m.date}T${m.time || "00:00"}`).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} · {m.time}</span>}
+                        </div>
+                        {jogoPalpites.map((jp, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", background: "#161616", borderRadius: 6, marginBottom: 4 }}>
+                            <div style={{ flex: 1, fontSize: 13, color: "#e8e8e8" }}>{jp.name}</div>
+                            <div style={{ fontWeight: 900, color: "#c9a227", fontSize: 13 }}>{jp.scoreHome} × {jp.scoreAway}</div>
+                            {jp.sentAt && <div style={{ fontSize: 11, color: "#444" }}>🕐 {jp.sentAt}</div>}
+                            {!jp.sentAt && <div style={{ fontSize: 11, color: "#333" }}>sem horário</div>}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Inserir placares */}
