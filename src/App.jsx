@@ -54,18 +54,113 @@ function Flag({ country }) {
   return <img src={`https://flagcdn.com/24x18/${code}.png`} alt={country} style={{ width: 24, height: 18, borderRadius: 2, objectFit: "cover", flexShrink: 0 }} />;
 }
 
+// Nota: Rep. Tcheca = Chéquia no PDF
+const SCHEDULE = [
+  // 11/jun
+  { home: "México",         away: "África do Sul",  date: "2026-06-11", time: "16:00", group: "A", round: "1ª Rodada" },
+  { home: "Coreia do Sul",  away: "Rep. Tcheca",    date: "2026-06-11", time: "19:00", group: "A", round: "1ª Rodada" },
+  // 12/jun
+  { home: "Canadá",         away: "Bósnia",         date: "2026-06-12", time: "16:00", group: "B", round: "1ª Rodada" },
+  { home: "EUA",            away: "Paraguai",        date: "2026-06-12", time: "22:00", group: "D", round: "1ª Rodada" },
+  // 13/jun
+  { home: "Catar",          away: "Suíça",           date: "2026-06-13", time: "16:00", group: "B", round: "1ª Rodada" },
+  { home: "Brasil",         away: "Marrocos",        date: "2026-06-13", time: "19:00", group: "C", round: "1ª Rodada" },
+  { home: "Haiti",          away: "Escócia",         date: "2026-06-13", time: "22:00", group: "C", round: "1ª Rodada" },
+  // 14/jun
+  { home: "Austrália",      away: "Turquia",         date: "2026-06-14", time: "01:00", group: "D", round: "1ª Rodada" },
+  { home: "Alemanha",       away: "Curaçao",         date: "2026-06-14", time: "14:00", group: "E", round: "1ª Rodada" },
+  { home: "Holanda",        away: "Japão",           date: "2026-06-14", time: "17:00", group: "F", round: "1ª Rodada" },
+  { home: "Costa do Marfim",away: "Equador",         date: "2026-06-14", time: "20:00", group: "E", round: "1ª Rodada" },
+  { home: "Suécia",         away: "Tunísia",         date: "2026-06-14", time: "23:00", group: "F", round: "1ª Rodada" },
+  // 15/jun
+  { home: "Espanha",        away: "Cabo Verde",      date: "2026-06-15", time: "13:00", group: "H", round: "1ª Rodada" },
+  { home: "Bélgica",        away: "Egito",           date: "2026-06-15", time: "16:00", group: "G", round: "1ª Rodada" },
+  { home: "Arábia Saudita", away: "Uruguai",         date: "2026-06-15", time: "19:00", group: "H", round: "1ª Rodada" },
+  { home: "Irã",            away: "Nova Zelândia",   date: "2026-06-15", time: "22:00", group: "G", round: "1ª Rodada" },
+  // 16/jun
+  { home: "França",         away: "Senegal",         date: "2026-06-16", time: "16:00", group: "I", round: "1ª Rodada" },
+  { home: "Iraque",         away: "Noruega",         date: "2026-06-16", time: "19:00", group: "I", round: "1ª Rodada" },
+  { home: "Argentina",      away: "Argélia",         date: "2026-06-16", time: "22:00", group: "J", round: "1ª Rodada" },
+  // 17/jun
+  { home: "Áustria",        away: "Jordânia",        date: "2026-06-17", time: "01:00", group: "J", round: "1ª Rodada" },
+  { home: "Portugal",       away: "RD Congo",        date: "2026-06-17", time: "14:00", group: "K", round: "1ª Rodada" },
+  { home: "Inglaterra",     away: "Croácia",         date: "2026-06-17", time: "17:00", group: "L", round: "1ª Rodada" },
+  { home: "Gana",           away: "Panamá",          date: "2026-06-17", time: "20:00", group: "L", round: "1ª Rodada" },
+  { home: "Uzbequistão",    away: "Colômbia",        date: "2026-06-17", time: "23:00", group: "K", round: "1ª Rodada" },
+  // 18/jun
+  { home: "Rep. Tcheca",    away: "África do Sul",   date: "2026-06-18", time: "13:00", group: "A", round: "2ª Rodada" },
+  { home: "Suíça",          away: "Bósnia",          date: "2026-06-18", time: "16:00", group: "B", round: "2ª Rodada" },
+  { home: "Canadá",         away: "Catar",           date: "2026-06-18", time: "19:00", group: "B", round: "2ª Rodada" },
+  { home: "México",         away: "Coreia do Sul",   date: "2026-06-18", time: "22:00", group: "A", round: "2ª Rodada" },
+  // 19/jun
+  { home: "EUA",            away: "Austrália",       date: "2026-06-19", time: "16:00", group: "D", round: "2ª Rodada" },
+  { home: "Escócia",        away: "Marrocos",        date: "2026-06-19", time: "19:00", group: "C", round: "2ª Rodada" },
+  { home: "Brasil",         away: "Haiti",           date: "2026-06-19", time: "21:30", group: "C", round: "2ª Rodada" },
+  // 20/jun
+  { home: "Turquia",        away: "Paraguai",        date: "2026-06-20", time: "00:00", group: "D", round: "2ª Rodada" },
+  { home: "Holanda",        away: "Suécia",          date: "2026-06-20", time: "14:00", group: "F", round: "2ª Rodada" },
+  { home: "Alemanha",       away: "Costa do Marfim", date: "2026-06-20", time: "17:00", group: "E", round: "2ª Rodada" },
+  { home: "Equador",        away: "Curaçao",         date: "2026-06-20", time: "21:00", group: "E", round: "2ª Rodada" },
+  // 21/jun
+  { home: "Tunísia",        away: "Japão",           date: "2026-06-21", time: "01:00", group: "F", round: "2ª Rodada" },
+  { home: "Espanha",        away: "Arábia Saudita",  date: "2026-06-21", time: "13:00", group: "H", round: "2ª Rodada" },
+  { home: "Bélgica",        away: "Irã",             date: "2026-06-21", time: "16:00", group: "G", round: "2ª Rodada" },
+  { home: "Uruguai",        away: "Cabo Verde",      date: "2026-06-21", time: "19:00", group: "H", round: "2ª Rodada" },
+  { home: "Nova Zelândia",  away: "Egito",           date: "2026-06-21", time: "22:00", group: "G", round: "2ª Rodada" },
+  // 22/jun
+  { home: "Argentina",      away: "Áustria",         date: "2026-06-22", time: "14:00", group: "J", round: "2ª Rodada" },
+  { home: "França",         away: "Iraque",          date: "2026-06-22", time: "18:00", group: "I", round: "2ª Rodada" },
+  { home: "Noruega",        away: "Senegal",         date: "2026-06-22", time: "21:00", group: "I", round: "2ª Rodada" },
+  // 23/jun
+  { home: "Jordânia",       away: "Argélia",         date: "2026-06-23", time: "00:00", group: "J", round: "2ª Rodada" },
+  { home: "Portugal",       away: "Uzbequistão",     date: "2026-06-23", time: "14:00", group: "K", round: "2ª Rodada" },
+  { home: "Inglaterra",     away: "Gana",            date: "2026-06-23", time: "17:00", group: "L", round: "2ª Rodada" },
+  { home: "Panamá",         away: "Croácia",         date: "2026-06-23", time: "20:00", group: "L", round: "2ª Rodada" },
+  { home: "Colômbia",       away: "RD Congo",        date: "2026-06-23", time: "23:00", group: "K", round: "2ª Rodada" },
+  // 24/jun
+  { home: "Bósnia",         away: "Catar",           date: "2026-06-24", time: "16:00", group: "B", round: "3ª Rodada" },
+  { home: "Suíça",          away: "Canadá",          date: "2026-06-24", time: "16:00", group: "B", round: "3ª Rodada" },
+  { home: "Marrocos",       away: "Haiti",           date: "2026-06-24", time: "19:00", group: "C", round: "3ª Rodada" },
+  { home: "Escócia",        away: "Brasil",          date: "2026-06-24", time: "19:00", group: "C", round: "3ª Rodada" },
+  { home: "Rep. Tcheca",    away: "México",          date: "2026-06-24", time: "22:00", group: "A", round: "3ª Rodada" },
+  { home: "África do Sul",  away: "Coreia do Sul",   date: "2026-06-24", time: "22:00", group: "A", round: "3ª Rodada" },
+  // 25/jun
+  { home: "Curaçao",        away: "Costa do Marfim", date: "2026-06-25", time: "17:00", group: "E", round: "3ª Rodada" },
+  { home: "Equador",        away: "Alemanha",        date: "2026-06-25", time: "17:00", group: "E", round: "3ª Rodada" },
+  { home: "Japão",          away: "Suécia",          date: "2026-06-25", time: "20:00", group: "F", round: "3ª Rodada" },
+  { home: "Tunísia",        away: "Holanda",         date: "2026-06-25", time: "20:00", group: "F", round: "3ª Rodada" },
+  { home: "Paraguai",       away: "Austrália",       date: "2026-06-25", time: "23:00", group: "D", round: "3ª Rodada" },
+  { home: "Turquia",        away: "EUA",             date: "2026-06-25", time: "23:00", group: "D", round: "3ª Rodada" },
+  // 26/jun
+  { home: "Noruega",        away: "França",          date: "2026-06-26", time: "16:00", group: "I", round: "3ª Rodada" },
+  { home: "Senegal",        away: "Iraque",          date: "2026-06-26", time: "16:00", group: "I", round: "3ª Rodada" },
+  { home: "Cabo Verde",     away: "Arábia Saudita",  date: "2026-06-26", time: "21:00", group: "H", round: "3ª Rodada" },
+  { home: "Uruguai",        away: "Espanha",         date: "2026-06-26", time: "21:00", group: "H", round: "3ª Rodada" },
+  // 27/jun
+  { home: "Egito",          away: "Irã",             date: "2026-06-27", time: "00:00", group: "G", round: "3ª Rodada" },
+  { home: "Nova Zelândia",  away: "Bélgica",         date: "2026-06-27", time: "00:00", group: "G", round: "3ª Rodada" },
+  { home: "Croácia",        away: "Gana",            date: "2026-06-27", time: "18:00", group: "L", round: "3ª Rodada" },
+  { home: "Panamá",         away: "Inglaterra",      date: "2026-06-27", time: "18:00", group: "L", round: "3ª Rodada" },
+  { home: "Colômbia",       away: "Portugal",        date: "2026-06-27", time: "20:30", group: "K", round: "3ª Rodada" },
+  { home: "RD Congo",       away: "Uzbequistão",     date: "2026-06-27", time: "20:30", group: "K", round: "3ª Rodada" },
+  { home: "Argélia",        away: "Áustria",         date: "2026-06-27", time: "23:00", group: "J", round: "3ª Rodada" },
+  { home: "Jordânia",       away: "Argentina",       date: "2026-06-27", time: "23:00", group: "J", round: "3ª Rodada" },
+];
+
 function generateGroupMatches() {
-  const matches = [];
-  let id = 1;
-  const rounds = ["1ª Rodada", "1ª Rodada", "2ª Rodada", "2ª Rodada", "3ª Rodada", "3ª Rodada"];
-  Object.entries(GROUPS_DATA).forEach(([group, teams]) => {
-    const [t1, t2, t3, t4] = teams;
-    const pairs = [[t1,t2],[t3,t4],[t1,t3],[t2,t4],[t1,t4],[t2,t3]];
-    pairs.forEach(([home, away], i) => {
-      matches.push({ id: id++, group, round: rounds[i], phase: "Grupos", home, away, scoreHome: null, scoreAway: null });
-    });
-  });
-  return matches;
+  return SCHEDULE.map((s, i) => ({
+    id: i + 1,
+    group: s.group,
+    round: s.round,
+    phase: "Grupos",
+    home: s.home,
+    away: s.away,
+    date: s.date,
+    time: s.time,
+    scoreHome: null,
+    scoreAway: null,
+    locked: false,
+  }));
 }
 
 const INITIAL_MATCHES = generateGroupMatches();
@@ -127,8 +222,11 @@ function MatchCard({ match, onSetScore, onToggleLock, onClearScore, onSetPenalty
           {pts > 0 ? `+${pts} pts` : "0 pts"}
         </div>
       )}
-      <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-        {match.phase === "Grupos" ? `Grupo ${match.group} · ${match.round}` : match.phase}
+      <div style={{ fontSize: 11, color: "#555", marginBottom: 6, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
+        <span>{match.phase === "Grupos" ? `Grupo ${match.group} · ${match.round}` : match.phase}</span>
+        {match.date && <span style={{ color: "#3a3a3a", fontWeight: 600 }}>
+          {new Date(`${match.date}T${match.time || "00:00"}`).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} · {match.time || ""}
+        </span>}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{ flex: 1, textAlign: "right", fontWeight: 700, fontSize: 15, color: "#e8e8e8" }}><Flag country={match.home} /> {match.home}</div>
@@ -375,9 +473,20 @@ export default function App() {
 
   const groups = ["Todos", ...Object.keys(GROUPS_DATA)];
   const knockoutMatches = matches.filter(m => m.phase !== "Grupos");
-  const filteredMatches = filterGroup === "Todos" ? matches.filter(m => m.phase === "Grupos")
-    : filterGroup === "Mata-mata" ? knockoutMatches
-    : matches.filter(m => m.group === filterGroup && m.phase === "Grupos");
+  const filteredMatches = (() => {
+    if (filterGroup === "Mata-mata") return knockoutMatches;
+    const list = filterGroup === "Todos"
+      ? matches.filter(m => m.phase === "Grupos")
+      : matches.filter(m => m.group === filterGroup && m.phase === "Grupos");
+    if (filterGroup === "Todos") {
+      return [...list].sort((a, b) => {
+        const da = new Date(`${a.date}T${a.time || "00:00"}`);
+        const db2 = new Date(`${b.date}T${b.time || "00:00"}`);
+        return da - db2;
+      });
+    }
+    return list;
+  })();
 
   const playerTabs = [
     { id: "palpites", label: "🎯 Palpites" },
