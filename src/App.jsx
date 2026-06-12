@@ -930,7 +930,19 @@ export default function App() {
                   <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} onSetPenalty={setPenalty} userGuess={null} showResult={false} />
                 ))}
 
-                <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
+                <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <button onClick={async () => {
+                    if (!window.confirm("Atualizar datas dos jogos? Os palpites e placares serão mantidos.")) return;
+                    const updated = matches.map(m => {
+                      const s = SCHEDULE.find(s => s.home === m.home && s.away === m.away && s.group === m.group);
+                      if (s) return { ...m, date: s.date, time: s.time, round: s.round };
+                      return m;
+                    });
+                    await saveMatches(updated);
+                    alert("Datas atualizadas com sucesso!");
+                  }} style={{ background: "#0a1a0a", color: "#4a8a4a", border: "1px solid #1a3a1a", borderRadius: 6, padding: "8px 16px", cursor: "pointer", fontSize: 13 }}>
+                    📅 Atualizar datas dos jogos (mantém palpites)
+                  </button>
                   <button onClick={async () => { if (window.confirm("Resetar TUDO? Isso apaga todos os dados!")) { await saveMatches(INITIAL_MATCHES); await savePlayers([]); await saveGuesses({}); setActivePlayer(null); }}}
                     style={{ background: "#1a0a0a", color: "#aa6a6a", border: "1px solid #3a1a1a", borderRadius: 6, padding: "8px 16px", cursor: "pointer", fontSize: 13 }}>
                     🗑️ Resetar todos os dados
