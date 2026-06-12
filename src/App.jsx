@@ -757,16 +757,27 @@ export default function App() {
                   <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Ranking Atual</div>
                   {ranking.length === 0
                     ? <div style={{ color: "#444", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
-                    : ranking.map((p, i) => (
-                      <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", marginBottom: 6, background: "#161616", borderRadius: 8, border: `1px solid ${i === 0 ? "#c9a227" : i === 1 ? "#888" : i === 2 ? "#cd7f32" : "#2a2a2a"}` }}>
-                        <div style={{ fontWeight: 900, minWidth: 28, color: i === 0 ? "#c9a227" : i === 1 ? "#ccc" : i === 2 ? "#cd7f32" : "#555" }}>
-                          {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i+1}º`}
-                        </div>
-                        <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
-                        <div style={{ fontSize: 11, color: "#555" }}>🎯{p.exact} · ✓{p.wins}</div>
-                        <div style={{ fontWeight: 900, color: i === 0 ? "#c9a227" : "#e8e8e8", fontSize: 16 }}>{p.total}pts</div>
-                      </div>
-                    ))}
+                    : (() => {
+                        let pos = 1;
+                        return ranking.map((p, i) => {
+                          if (i > 0 && p.total < ranking[i-1].total) pos = i + 1;
+                          const isGold = pos === 1 && p.total > 0;
+                          const isSilver = pos === 2 && p.total > 0;
+                          const isBronze = pos === 3 && p.total > 0;
+                          const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${pos}º`;
+                          const borderColor = isGold ? "#c9a227" : isSilver ? "#888" : isBronze ? "#cd7f32" : "#2a2a2a";
+                          const medalColor = isGold ? "#c9a227" : isSilver ? "#ccc" : isBronze ? "#cd7f32" : "#555";
+                          return (
+                            <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", marginBottom: 6, background: "#161616", borderRadius: 8, border: `1px solid ${borderColor}` }}>
+                              <div style={{ fontWeight: 900, minWidth: 28, color: medalColor }}>{medal}</div>
+                              <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
+                              <div style={{ fontSize: 11, color: "#555" }}>🎯{p.exact} · ✓{p.wins}</div>
+                              <div style={{ fontWeight: 900, color: isGold ? "#c9a227" : "#e8e8e8", fontSize: 16 }}>{p.total}pts</div>
+                            </div>
+                          );
+                        });
+                      })()
+                  }
                 </div>
 
                 {/* Alunos */}
