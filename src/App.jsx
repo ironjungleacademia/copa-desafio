@@ -205,7 +205,7 @@ function ScoreBadge({ score, color = "#c9a227" }) {
   );
 }
 
-function MatchCard({ match, onSetScore, onToggleLock, onClearScore, onSetPenalty, isAdmin, userGuess, showResult }) {
+function MatchCard({ match, onSetScore, onToggleLock, onClearScore, onSetPenalty, onDeleteGuess, isAdmin, userGuess, showResult }) {
   const [h, setH] = useState("");
   const [a, setA] = useState("");
   const [guessH, setGuessH] = useState("");
@@ -308,7 +308,12 @@ function MatchCard({ match, onSetScore, onToggleLock, onClearScore, onSetPenalty
 
       {!isAdmin && userGuess && (
         <div style={{ marginTop: 8, textAlign: "center", color: "#888", fontSize: 12 }}>
-          Seu palpite: <strong style={{ color: "#c9a227" }}>{userGuess.scoreHome} × {userGuess.scoreAway}</strong>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <span>Seu palpite: <strong style={{ color: "#c9a227" }}>{userGuess.scoreHome} × {userGuess.scoreAway}</strong></span>
+            {!match.locked && !hasScore && (
+              <button onClick={() => onDeleteGuess(match.id)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 15, color: "#6a2a2a", padding: "0 2px" }} title="Apagar palpite">🗑️</button>
+            )}
+          </div>
           {hasScore && <span style={{ marginLeft: 8, color: pts > 0 ? "#c9a227" : "#aa4a4a" }}>{pts > 0 ? "✓ Acertou!" : "✗ Errou"}</span>}
         </div>
       )}
@@ -445,6 +450,13 @@ export default function App() {
   const setMatchScore = async (matchId, h, a) => {
     const updated = matches.map(m => m.id === matchId ? { ...m, scoreHome: h, scoreAway: a } : m);
     await saveMatches(updated);
+  };
+
+  const deletePlayerGuess = async (matchId) => {
+    if (!activePlayer) return;
+    const updated = { ...guesses, [activePlayer]: { ...guesses[activePlayer] } };
+    delete updated[activePlayer][matchId];
+    await saveGuesses(updated);
   };
 
   const setPlayerGuess = async (matchId, h, a) => {
@@ -610,6 +622,7 @@ export default function App() {
                 <GroupFilter />
                 {filteredMatches.map(m => (
                   <MatchCard key={m.id} match={m} isAdmin={false} onSetScore={(id, h, a) => setPlayerGuess(id, h, a)}
+                    onDeleteGuess={deletePlayerGuess}
                     userGuess={guesses[activePlayer]?.[m.id] || null} showResult={true} />
                 ))}
               </div>
