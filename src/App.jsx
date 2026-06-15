@@ -345,6 +345,7 @@ export default function App() {
   const [chat, setChat] = useState([]);
   const [chatMsg, setChatMsg] = useState("");
   const [guessModal, setGuessModal] = useState(null);
+  const [matchDetailModal, setMatchDetailModal] = useState(null);
   const chatEndRef = useRef(null);
   const ADMIN_PASSWORD = "ironjungle2026";
 
@@ -661,7 +662,14 @@ export default function App() {
                       if (m.scoreHome === g.scoreHome && m.scoreAway === g.scoreAway) exact++;
                       else if (getMatchResult(m.scoreHome, m.scoreAway) === getMatchResult(g.scoreHome, g.scoreAway)) win++;
                     });
-                    return <div style={{ marginTop: 8, fontSize: 12, color: "#555" }}>🎯 {exact} exato · ✓ {win} resultado · ✗ {totalGuesses - exact - win} erros</div>;
+                    return (
+                      <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
+                        <div style={{ fontSize: 12, color: "#555" }}>🎯 {exact} exato · ✓ {win} resultado · ✗ {totalGuesses - exact - win} erros</div>
+                        <button onClick={() => setMatchDetailModal(m)} style={{ background: "#1a1a1a", color: "#888", border: "1px solid #2a2a2a", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 11 }}>
+                          Ver detalhes
+                        </button>
+                      </div>
+                    );
                   })()}
                 </div>
               );
@@ -1016,6 +1024,54 @@ export default function App() {
             )}
           </div>
         )}
+        {/* Modal detalhes do jogo */}
+        {matchDetailModal && (() => {
+          const m = matchDetailModal;
+          const exact = [], win = [], miss = [];
+          players.forEach(p => {
+            const g = guesses[p.id]?.[m.id];
+            if (!g) return;
+            if (m.scoreHome === g.scoreHome && m.scoreAway === g.scoreAway) exact.push({ name: p.name, guess: g });
+            else if (getMatchResult(m.scoreHome, m.scoreAway) === getMatchResult(g.scoreHome, g.scoreAway)) win.push({ name: p.name, guess: g });
+            else miss.push({ name: p.name, guess: g });
+          });
+          return (
+            <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+              onClick={() => setMatchDetailModal(null)}>
+              <div style={{ background: "#161616", border: "1px solid #2a2a2a", borderRadius: 12, padding: 20, width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto" }}
+                onClick={e => e.stopPropagation()}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <div>
+                    <div style={{ fontWeight: 900, color: "#e8e8e8", fontSize: 15 }}>{m.home} × {m.away}</div>
+                    <div style={{ fontSize: 12, color: "#555", marginTop: 2 }}>Placar: <strong style={{ color: "#c9a227" }}>{m.scoreHome} × {m.scoreAway}</strong></div>
+                  </div>
+                  <button onClick={() => setMatchDetailModal(null)} style={{ background: "transparent", color: "#888", border: "none", cursor: "pointer", fontSize: 22 }}>×</button>
+                </div>
+
+                {[
+                  { list: exact, label: "🎯 Placar Exato", color: "#c9a227", pts: 5 },
+                  { list: win, label: "✓ Resultado Certo", color: "#4a8a4a", pts: 2 },
+                  { list: miss, label: "✗ Erraram", color: "#555", pts: 0 },
+                ].map(({ list, label, color, pts }) => (
+                  <div key={label} style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color, marginBottom: 6, letterSpacing: 1, textTransform: "uppercase" }}>
+                      {label} {list.length > 0 && <span style={{ color: "#444" }}>({list.length}){pts > 0 ? ` · +${pts}pts` : ""}</span>}
+                    </div>
+                    {list.length === 0
+                      ? <div style={{ fontSize: 12, color: "#333", fontStyle: "italic" }}>Ninguém</div>
+                      : list.map((item, i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#111", borderRadius: 6, marginBottom: 4 }}>
+                          <div style={{ fontSize: 13, color: "#e8e8e8" }}>{item.name}</div>
+                          <div style={{ fontSize: 12, color: "#555" }}>apostou {item.guess.scoreHome} × {item.guess.scoreAway}</div>
+                        </div>
+                      ))
+                    }
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
