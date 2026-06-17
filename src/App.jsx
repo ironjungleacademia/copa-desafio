@@ -346,6 +346,7 @@ export default function App() {
   const [chatMsg, setChatMsg] = useState("");
   const [guessModal, setGuessModal] = useState(null);
   const [matchDetailModal, setMatchDetailModal] = useState(null);
+  const [rankingWeek, setRankingWeek] = useState("geral");
   const chatEndRef = useRef(null);
   const ADMIN_PASSWORD = "ironjungle2026";
 
@@ -483,8 +484,43 @@ export default function App() {
     return { total, wins, goals, exact };
   }, [guesses, matches]);
 
-  const ranking = players.map(p => ({ ...p, ...calcPlayerScore(p.id) }))
-    .sort((a, b) => b.total - a.total || b.exact - a.exact || b.goals - a.goals);
+  const WEEKS = [
+    { id: "geral", label: "Geral", start: "2026-06-11", end: "2026-07-20" },
+    { id: "s1", label: "Semana 1", start: "2026-06-11", end: "2026-06-17" },
+    { id: "s2", label: "Semana 2", start: "2026-06-18", end: "2026-06-24" },
+    { id: "s3", label: "Semana 3", start: "2026-06-25", end: "2026-07-01" },
+    { id: "s4", label: "Semana 4", start: "2026-07-02", end: "2026-07-08" },
+    { id: "s5", label: "Semana 5", start: "2026-07-09", end: "2026-07-20" },
+  ];
+
+  const getWeekMatches = (weekId) => {
+    const week = WEEKS.find(w => w.id === weekId);
+    if (!week) return matches;
+    return matches.filter(m => {
+      if (!m.date) return weekId === "geral";
+      return m.date >= week.start && m.date <= week.end;
+    });
+  };
+
+  const calcWeeklyRanking = useCallback((weekId) => {
+    const weekMatches = getWeekMatches(weekId);
+    return players.map(p => {
+      const pg = guesses[p.id] || {};
+      let total = 0, wins = 0, exact = 0;
+      weekMatches.forEach(m => {
+        if (m.scoreHome === null || m.scoreAway === null) return;
+        const g = pg[m.id];
+        if (!g) return;
+        const pts = calcPoints(g, m);
+        total += pts;
+        if (getMatchResult(m.scoreHome, m.scoreAway) === getMatchResult(g.scoreHome, g.scoreAway)) wins++;
+        if (m.scoreHome === g.scoreHome && m.scoreAway === g.scoreAway) exact++;
+      });
+      return { ...p, total, wins, exact };
+    }).sort((a, b) => b.total - a.total || b.exact - a.exact || b.wins - a.wins);
+  }, [guesses, matches, players]);
+
+  const ranking = calcWeeklyRanking("geral");
 
   const groups = ["Todos", ...Object.keys(GROUPS_DATA)];
   const knockoutMatches = matches.filter(m => m.phase !== "Grupos");
@@ -711,6 +747,35 @@ export default function App() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Pontuação por semana */}
+                  <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, color: "#c9a227", fontSize: 13 }}>📅 Pontuação por Semana</div>
+                    {WEEKS.filter(w => w.id !== "geral").map(w => {
+                      const weekMatches = getWeekMatches(w.id);
+                      const finishedMatches = weekMatches.filter(m => m.scoreHome !== null);
+                      if (finishedMatches.length === 0) return null;
+                      const pg = guesses[activePlayer] || {};
+                      let pts = 0, ex = 0, wi = 0;
+                      finishedMatches.forEach(m => {
+                        const g = pg[m.id];
+                        if (!g) return;
+                        const p2 = calcPoints(g, m);
+                        pts += p2;
+                        if (m.scoreHome === g.scoreHome && m.scoreAway === g.scoreAway) ex++;
+                        else if (getMatchResult(m.scoreHome, m.scoreAway) === getMatchResult(g.scoreHome, g.scoreAway)) wi++;
+                      });
+                      return (
+                        <div key={w.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: "#161616", borderRadius: 8, marginBottom: 6 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 13, color: "#e8e8e8" }}>{w.label}</div>
+                            <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>🎯 {ex} exato · ✓ {wi} resultado</div>
+                          </div>
+                          <div style={{ fontWeight: 900, fontSize: 18, color: pts > 0 ? "#c9a227" : "#555" }}>{pts} pts</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                   <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 12 }}>
                     <div style={{ fontWeight: 700, marginBottom: 8, color: "#c9a227", fontSize: 13 }}>📋 Sistema de Pontuação</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#888" }}>
@@ -888,30 +953,48 @@ export default function App() {
 
                 {/* Ranking */}
                 <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-                  <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Ranking Atual</div>
-                  {ranking.length === 0
-                    ? <div style={{ color: "#444", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>
-                    : (() => {
-                        const uniqueScores = [...new Set(ranking.map(p => p.total))].sort((a,b) => b-a);
-                        return ranking.map((p) => {
-                          const scoreRank = uniqueScores.indexOf(p.total) + 1;
-                          const isGold = scoreRank === 1 && p.total > 0;
-                          const isSilver = scoreRank === 2 && p.total > 0;
-                          const isBronze = scoreRank === 3 && p.total > 0;
-                          const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${scoreRank}º`;
-                          const borderColor = isGold ? "#c9a227" : isSilver ? "#888" : isBronze ? "#cd7f32" : "#2a2a2a";
-                          const medalColor = isGold ? "#c9a227" : isSilver ? "#ccc" : isBronze ? "#cd7f32" : "#555";
-                          return (
-                            <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", marginBottom: 6, background: "#161616", borderRadius: 8, border: `1px solid ${borderColor}` }}>
-                              <div style={{ fontWeight: 900, minWidth: 28, color: medalColor }}>{medal}</div>
-                              <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
-                              <div style={{ fontSize: 11, color: "#555" }}>🎯{p.exact} · ✓{p.wins}</div>
-                              <div style={{ fontWeight: 900, color: isGold ? "#c9a227" : "#e8e8e8", fontSize: 16 }}>{p.total}pts</div>
-                            </div>
-                          );
-                        });
-                      })()
-                  }
+                  <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Ranking</div>
+                  
+                  {/* Botões de semana */}
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+                    {WEEKS.map(w => (
+                      <button key={w.id} onClick={() => setRankingWeek(w.id)} style={{
+                        background: rankingWeek === w.id ? "#c9a227" : "#1a1a1a",
+                        color: rankingWeek === w.id ? "#111" : "#888",
+                        border: "1px solid #2a2a2a", borderRadius: 6, padding: "5px 10px",
+                        cursor: "pointer", fontSize: 12, fontWeight: 700
+                      }}>{w.label}</button>
+                    ))}
+                  </div>
+
+                  <div style={{ fontSize: 11, color: "#555", marginBottom: 10 }}>
+                    {WEEKS.find(w => w.id === rankingWeek)?.id !== "geral" && (
+                      `Jogos de ${new Date(WEEKS.find(w => w.id === rankingWeek).start + "T12:00:00").toLocaleDateString("pt-BR")} a ${new Date(WEEKS.find(w => w.id === rankingWeek).end + "T12:00:00").toLocaleDateString("pt-BR")}`
+                    )}
+                  </div>
+
+                  {(() => {
+                    const weekRanking = calcWeeklyRanking(rankingWeek);
+                    const uniqueScores = [...new Set(weekRanking.map(p => p.total))].sort((a,b) => b-a);
+                    if (weekRanking.length === 0) return <div style={{ color: "#444", fontSize: 13 }}>Nenhum aluno cadastrado ainda.</div>;
+                    return weekRanking.map((p) => {
+                      const scoreRank = uniqueScores.indexOf(p.total) + 1;
+                      const isGold = scoreRank === 1 && p.total > 0;
+                      const isSilver = scoreRank === 2 && p.total > 0;
+                      const isBronze = scoreRank === 3 && p.total > 0;
+                      const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${scoreRank}º`;
+                      const borderColor = isGold ? "#c9a227" : isSilver ? "#888" : isBronze ? "#cd7f32" : "#2a2a2a";
+                      const medalColor = isGold ? "#c9a227" : isSilver ? "#ccc" : isBronze ? "#cd7f32" : "#555";
+                      return (
+                        <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", marginBottom: 6, background: "#161616", borderRadius: 8, border: `1px solid ${borderColor}` }}>
+                          <div style={{ fontWeight: 900, minWidth: 28, color: medalColor }}>{medal}</div>
+                          <div style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
+                          <div style={{ fontSize: 11, color: "#555" }}>🎯{p.exact} · ✓{p.wins}</div>
+                          <div style={{ fontWeight: 900, color: isGold ? "#c9a227" : "#e8e8e8", fontSize: 16 }}>{p.total}pts</div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* Alunos */}
