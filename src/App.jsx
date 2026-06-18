@@ -486,11 +486,11 @@ export default function App() {
 
   const WEEKS = [
     { id: "geral", label: "Geral", start: "2026-06-11", end: "2026-07-20" },
-    { id: "s1", label: "Semana 1", start: "2026-06-11", end: "2026-06-17" },
-    { id: "s2", label: "Semana 2", start: "2026-06-18", end: "2026-06-24" },
-    { id: "s3", label: "Semana 3", start: "2026-06-25", end: "2026-07-01" },
-    { id: "s4", label: "Semana 4", start: "2026-07-02", end: "2026-07-08" },
-    { id: "s5", label: "Semana 5", start: "2026-07-09", end: "2026-07-20" },
+    { id: "s1", label: "1ª Rodada", start: "2026-06-11", end: "2026-06-17" },
+    { id: "s2", label: "2ª Rodada", start: "2026-06-18", end: "2026-06-24" },
+    { id: "s3", label: "3ª Rodada", start: "2026-06-25", end: "2026-07-01" },
+    { id: "s4", label: "16 Avos", start: "2026-07-02", end: "2026-07-08" },
+    { id: "s5", label: "Oitavas→Final", start: "2026-07-09", end: "2026-07-20" },
   ];
 
   const getWeekMatches = (weekId) => {
