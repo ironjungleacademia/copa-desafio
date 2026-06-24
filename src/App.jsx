@@ -354,6 +354,7 @@ export default function App() {
   });
 
   const chatEndRef = useRef(null);
+  const ADMIN_PASSWORD = "ironjungle2026";
   const unreadCount = Math.max(0, chat.length - lastReadCount);
 
   useEffect(() => {
