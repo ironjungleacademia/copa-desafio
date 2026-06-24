@@ -347,6 +347,8 @@ export default function App() {
   const [guessModal, setGuessModal] = useState(null);
   const [matchDetailModal, setMatchDetailModal] = useState(null);
   const [rankingWeek, setRankingWeek] = useState("geral");
+  const [rankingWeekPlayer, setRankingWeekPlayer] = useState("geral");
+  const [unlockedRankings, setUnlockedRankings] = useState(() => ({ geral: true, s1: true, s2: true, s3: false, s4: false, s5: false }));
   const chatEndRef = useRef(null);
   const ADMIN_PASSWORD = "ironjungle2026";
 
@@ -370,7 +372,11 @@ export default function App() {
     const unsubChat = onSnapshot(doc(db, "data", "chat"), snap => {
       if (snap.exists()) setChat(snap.data().messages || []);
     });
-    return () => { unsubMatches(); unsubPlayers(); unsubGuesses(); unsubChat(); };
+    // Listen to unlocked rankings
+    const unsubRankings = onSnapshot(doc(db, "data", "unlockedRankings"), snap => {
+      if (snap.exists()) setUnlockedRankings(snap.data().map || { geral: true, s1: true, s2: true, s3: false, s4: false, s5: false });
+    });
+    return () => { unsubMatches(); unsubPlayers(); unsubGuesses(); unsubChat(); unsubRankings(); };
   }, []);
 
   const sendMessage = async () => {
@@ -408,6 +414,11 @@ export default function App() {
   const saveGuesses = async (map) => {
     setGuesses(map);
     await setDoc(doc(db, "data", "guesses"), { map });
+  };
+
+  const saveUnlockedRankings = async (map) => {
+    setUnlockedRankings(map);
+    await setDoc(doc(db, "data", "unlockedRankings"), { map });
   };
 
   const registerPlayer = async () => {
@@ -542,8 +553,8 @@ export default function App() {
   const playerTabs = [
     { id: "palpites", label: "🎯 Palpites" },
     { id: "jogos", label: "⚽ Jogos" },
+    { id: "ranking", label: "🏆 Ranking" },
     { id: "chat", label: "💬 Chat" },
-    { id: "regras", label: "📖 Regras" },
     { id: "conta", label: "👤 Conta" },
     { id: "admin", label: "🔧 Admin" },
   ];
@@ -840,91 +851,64 @@ export default function App() {
           </div>
         )}
 
-        {/* ── REGRAS ── */}
-        {tab === "regras" && (
+        {/* ── RANKING ── */}
+        {tab === "ranking" && (
           <div>
-            <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
-              <div style={{ fontSize: 44, marginBottom: 8 }}>📖</div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: "#c9a227" }}>Como Funciona</div>
-              <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>Desafio dos Placares · Copa 2026</div>
+            {/* Botões de fase */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16, marginTop: 8 }}>
+              {WEEKS.map(w => {
+                const unlocked = unlockedRankings[w.id];
+                const isActive = rankingWeekPlayer === w.id;
+                return (
+                  <button key={w.id} onClick={() => unlocked && setRankingWeekPlayer(w.id)} style={{
+                    background: isActive ? "#c9a227" : unlocked ? "#161616" : "#0f0f0f",
+                    color: isActive ? "#111" : unlocked ? "#888" : "#333",
+                    border: `1px solid ${isActive ? "#c9a227" : unlocked ? "#2a2a2a" : "#1a1a1a"}`,
+                    borderRadius: 6, padding: "6px 12px", cursor: unlocked ? "pointer" : "not-allowed",
+                    fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4
+                  }}>
+                    {!unlocked && <span>🔒</span>} {w.label}
+                  </button>
+                );
+              })}
             </div>
 
-            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
-              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🚀 Como Participar</div>
-              {[
-                { n: "1", txt: "Crie sua conta com nome e senha na aba Palpites." },
-                { n: "2", txt: "Escolha um jogo e digite o placar que você acha que vai acontecer." },
-                { n: "3", txt: "Envie seu palpite antes do jogo começar — após o início os palpites são bloqueados." },
-                { n: "4", txt: "Após o jogo, o sistema pontua automaticamente e atualiza o ranking." },
-              ].map(({ n, txt }) => (
-                <div key={n} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 10 }}>
-                  <div style={{ background: "#c9a227", color: "#111", fontWeight: 900, fontSize: 13, borderRadius: "50%", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{n}</div>
-                  <div style={{ color: "#aaa", fontSize: 14, lineHeight: 1.5 }}>{txt}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
-              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🏆 Sistema de Pontuação</div>
-              {[
-                { pts: 2, icon: "✓", title: "Acertar o vencedor", desc: "Você acertou qual time ganhou, ou que seria empate." },
-                { pts: 5, icon: "🎯", title: "Acertar o placar exato", desc: "Você acertou o placar certinho. Já inclui os 2 pontos do vencedor." },
-              ].map(({ pts, icon, title, desc }) => (
-                <div key={pts} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #1a1a1a" }}>
-                  <div style={{ background: "#1a1a00", border: "1px solid #c9a227", borderRadius: 8, padding: "6px 10px", textAlign: "center", minWidth: 44, flexShrink: 0 }}>
-                    <div style={{ fontSize: 18 }}>{icon}</div>
-                    <div style={{ color: "#c9a227", fontWeight: 900, fontSize: 13 }}>{pts} pt{pts > 1 ? "s" : ""}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, color: "#e8e8e8", marginBottom: 2 }}>{title}</div>
-                    <div style={{ color: "#666", fontSize: 13, lineHeight: 1.4 }}>{desc}</div>
-                  </div>
-                </div>
-              ))}
-              <div style={{ background: "#1a1a00", borderRadius: 8, padding: 10, fontSize: 13, color: "#c9a227", fontWeight: 700, textAlign: "center" }}>
-                🌟 Placar exato = 5 pontos (já inclui o vencedor)!
+            {!unlockedRankings[rankingWeekPlayer] ? (
+              <div style={{ textAlign: "center", padding: 40, color: "#444" }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>🔒</div>
+                <div>Este ranking será divulgado em breve!</div>
               </div>
-            </div>
-
-            <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 12 }}>
-              <div style={{ fontWeight: 900, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>📊 Exemplos Práticos</div>
-              {[
-                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 1 × 0", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → +2 pontos" },
-                  { ok: false, txt: "Placar exato: errou → 0 pontos" },
-                ], total: 2 },
-                { real: "Brasil 2 × 1 Argentina", palpite: "Argentina 1 × 0", itens: [
-                  { ok: false, txt: "Vencedor: apostou Argentina, ganhou Brasil → 0 pontos" },
-                  { ok: false, txt: "Placar exato: errou → 0 pontos" },
-                ], total: 0 },
-                { real: "Brasil 2 × 1 Argentina", palpite: "Brasil 2 × 1", itens: [
-                  { ok: true, txt: "Vencedor (Brasil) → já incluso no placar exato" },
-                  { ok: true, txt: "Placar exato: acertou! → 5 pontos" },
-                ], total: 5 },
-              ].map(({ real, palpite, itens, total }, i) => (
-                <div key={i} style={{ background: "#161616", borderRadius: 8, padding: 12, marginBottom: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
-                    <div style={{ fontSize: 12, color: "#888" }}>Resultado: <strong style={{ color: "#e8e8e8" }}>{real}</strong></div>
-                    <div style={{ fontSize: 12, color: "#888" }}>Palpite: <strong style={{ color: "#c9a227" }}>{palpite}</strong></div>
-                  </div>
-                  {itens.map((item, j) => (
-                    <div key={j} style={{ fontSize: 13, color: item.ok ? "#c9a227" : "#555", marginBottom: 3 }}>
-                      {item.ok ? "✅" : "❌"} {item.txt}
+            ) : (() => {
+              const weekRanking = calcWeeklyRanking(rankingWeekPlayer);
+              const uniqueScores = [...new Set(weekRanking.map(p => p.total))].sort((a,b) => b-a);
+              const week = WEEKS.find(w => w.id === rankingWeekPlayer);
+              return (
+                <div>
+                  {rankingWeekPlayer !== "geral" && (
+                    <div style={{ fontSize: 11, color: "#555", marginBottom: 12, textAlign: "center" }}>
+                      Jogos de {new Date(week.start + "T12:00:00").toLocaleDateString("pt-BR")} a {new Date(week.end + "T12:00:00").toLocaleDateString("pt-BR")}
                     </div>
-                  ))}
-                  <div style={{ marginTop: 8, fontWeight: 900, color: "#c9a227", fontSize: 14, textAlign: "right" }}>
-                    Total: {total} ponto{total !== 1 ? "s" : ""}
-                  </div>
+                  )}
+                  {weekRanking.map(p => {
+                    const scoreRank = uniqueScores.indexOf(p.total) + 1;
+                    const isGold = scoreRank === 1 && p.total > 0;
+                    const isSilver = scoreRank === 2 && p.total > 0;
+                    const isBronze = scoreRank === 3 && p.total > 0;
+                    const medal = isGold ? "🥇" : isSilver ? "🥈" : isBronze ? "🥉" : `${scoreRank}º`;
+                    const borderColor = isGold ? "#c9a227" : isSilver ? "#888" : isBronze ? "#cd7f32" : "#2a2a2a";
+                    const medalColor = isGold ? "#c9a227" : isSilver ? "#ccc" : isBronze ? "#cd7f32" : "#555";
+                    return (
+                      <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginBottom: 8, background: "#161616", borderRadius: 10, border: `1px solid ${borderColor}` }}>
+                        <div style={{ fontSize: isGold || isSilver || isBronze ? 22 : 16, fontWeight: 900, color: medalColor, minWidth: 32 }}>{medal}</div>
+                        <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}>{p.name}</div>
+                        <div style={{ fontSize: 11, color: "#555" }}>🎯{p.exact} · ✓{p.wins}</div>
+                        <div style={{ fontWeight: 900, fontSize: 18, color: isGold ? "#c9a227" : "#e8e8e8" }}>{p.total}pts</div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
-
-            <div style={{ background: "#0a1a0a", border: "1px solid #1a3a1a", borderRadius: 10, padding: 14, marginBottom: 12 }}>
-              <div style={{ fontWeight: 900, color: "#4a8a4a", marginBottom: 6, fontSize: 13 }}>💡 Dica</div>
-              <div style={{ color: "#666", fontSize: 13, lineHeight: 1.5 }}>
-                Mesmo que erre o placar exato, você ainda pontua 2 pontos acertando o vencedor. Vale a pena apostar em todos os jogos!
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
 
@@ -997,7 +981,26 @@ export default function App() {
                   })()}
                 </div>
 
-                {/* Alunos */}
+                {/* Controle de Rankings */}
+                <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+                  <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>🔓 Liberar Rankings para Alunos</div>
+                  {WEEKS.map(w => (
+                    <div key={w.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: "#161616", borderRadius: 8, marginBottom: 6 }}>
+                      <div style={{ flex: 1, fontWeight: 700, fontSize: 13 }}>{w.label}</div>
+                      <button onClick={async () => {
+                        const updated = { ...unlockedRankings, [w.id]: !unlockedRankings[w.id] };
+                        await saveUnlockedRankings(updated);
+                      }} style={{
+                        background: unlockedRankings[w.id] ? "#1a3a1a" : "#1a1a1a",
+                        color: unlockedRankings[w.id] ? "#4a8a4a" : "#555",
+                        border: `1px solid ${unlockedRankings[w.id] ? "#2a4a2a" : "#2a2a2a"}`,
+                        borderRadius: 6, padding: "5px 14px", cursor: "pointer", fontSize: 12, fontWeight: 700
+                      }}>
+                        {unlockedRankings[w.id] ? "🔓 Visível" : "🔒 Bloqueado"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 10, padding: 14, marginBottom: 16 }}>
                   <div style={{ fontWeight: 700, color: "#c9a227", marginBottom: 12, fontSize: 14 }}>👤 Alunos Cadastrados ({players.length})</div>
                   {players.length === 0
