@@ -349,8 +349,18 @@ export default function App() {
   const [rankingWeek, setRankingWeek] = useState("geral");
   const [rankingWeekPlayer, setRankingWeekPlayer] = useState("geral");
   const [unlockedRankings, setUnlockedRankings] = useState(() => ({ geral: true, s1: true, s2: true, s3: false, s4: false, s5: false }));
-  const chatEndRef = useRef(null);
-  const ADMIN_PASSWORD = "ironjungle2026";
+  const [lastReadCount, setLastReadCount] = useState(() => {
+    try { return parseInt(localStorage.getItem("copa_lastRead") || "0"); } catch { return 0; }
+  });
+
+  const unreadCount = Math.max(0, chat.length - lastReadCount);
+
+  useEffect(() => {
+    if (tab === "chat") {
+      setLastReadCount(chat.length);
+      try { localStorage.setItem("copa_lastRead", chat.length); } catch {}
+    }
+  }, [tab, chat.length]);
 
   // ── Firebase listeners ──
   useEffect(() => {
@@ -554,7 +564,7 @@ export default function App() {
     { id: "palpites", label: "🎯 Palpites" },
     { id: "jogos", label: "⚽ Jogos" },
     { id: "ranking", label: "🏆 Ranking" },
-    { id: "chat", label: "💬 Chat" },
+    { id: "chat", label: "💬 Chat", badge: unreadCount },
     { id: "conta", label: "👤 Conta" },
     { id: "admin", label: "🔧 Admin" },
   ];
@@ -601,7 +611,15 @@ export default function App() {
               color: tab === t.id ? "#111" : "#666",
               border: "none", padding: "8px 14px", cursor: "pointer",
               fontWeight: tab === t.id ? 900 : 600, fontSize: 13, borderRadius: "6px 6px 0 0",
-            }}>{t.label}</button>
+              position: "relative"
+            }}>
+              {t.label}
+              {t.badge > 0 && tab !== t.id && (
+                <span style={{ position: "absolute", top: 4, right: 4, background: "#e05555", color: "#fff", fontSize: 9, fontWeight: 900, borderRadius: "50%", width: 16, height: 16, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+                  {t.badge > 9 ? "9+" : t.badge}
+                </span>
+              )}
+            </button>
           ))}
         </div>
       </div>
