@@ -353,6 +353,7 @@ export default function App() {
     try { return parseInt(localStorage.getItem("copa_lastRead") || "0"); } catch { return 0; }
   });
 
+  const chatEndRef = useRef(null);
   const unreadCount = Math.max(0, chat.length - lastReadCount);
 
   useEffect(() => {
