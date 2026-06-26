@@ -340,7 +340,9 @@ export default function App() {
   const [loginError, setLoginError] = useState("");
   const [registerMode, setRegisterMode] = useState(false);
   const [filterGroup, setFilterGroup] = useState("Todos");
-  const [newMatchForm, setNewMatchForm] = useState({ phase: "Round of 32", home: "", away: "" });
+  const [editMatchId, setEditMatchId] = useState(null);
+  const [editMatchForm, setEditMatchForm] = useState({ home: "", away: "", date: "", time: "", phase: "" });
+  const [newMatchForm, setNewMatchForm] = useState({ phase: "16 Avos de Final", home: "", away: "", date: "", time: "" });
   const [loading, setLoading] = useState(true);
   const [chat, setChat] = useState([]);
   const [chatMsg, setChatMsg] = useState("");
@@ -1080,15 +1082,19 @@ export default function App() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     <select value={newMatchForm.phase} onChange={e => setNewMatchForm(p => ({ ...p, phase: e.target.value }))}
                       style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }}>
-                      {["Round of 32", "Oitavas", "Quartas", "Semifinal", "Terceiro Lugar", "Final"].map(ph => <option key={ph} value={ph}>{ph}</option>)}
+                      {["16 Avos de Final", "Oitavas de Final", "Quartas de Final", "Semifinal", "Terceiro Lugar", "Final"].map(ph => <option key={ph} value={ph}>{ph}</option>)}
                     </select>
                     <input value={newMatchForm.home} onChange={e => setNewMatchForm(p => ({ ...p, home: e.target.value }))} placeholder="Time da casa..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
                     <input value={newMatchForm.away} onChange={e => setNewMatchForm(p => ({ ...p, away: e.target.value }))} placeholder="Time visitante..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input type="date" value={newMatchForm.date} onChange={e => setNewMatchForm(p => ({ ...p, date: e.target.value }))} style={{ flex: 1, background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                      <input type="time" value={newMatchForm.time} onChange={e => setNewMatchForm(p => ({ ...p, time: e.target.value }))} style={{ flex: 1, background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                    </div>
                     <button onClick={async () => {
                       if (!newMatchForm.home || !newMatchForm.away) return;
-                      const newM = { id: Date.now(), group: "MM", round: newMatchForm.phase, phase: newMatchForm.phase, home: newMatchForm.home, away: newMatchForm.away, scoreHome: null, scoreAway: null };
+                      const newM = { id: Date.now(), group: "MM", round: newMatchForm.phase, phase: newMatchForm.phase, home: newMatchForm.home, away: newMatchForm.away, date: newMatchForm.date || null, time: newMatchForm.time || null, scoreHome: null, scoreAway: null };
                       await saveMatches([...matches, newM]);
-                      setNewMatchForm(p => ({ ...p, home: "", away: "" }));
+                      setNewMatchForm(p => ({ ...p, home: "", away: "", date: "", time: "" }));
                     }} style={btnGold}>Criar Jogo</button>
                   </div>
                 </div>
@@ -1097,8 +1103,49 @@ export default function App() {
                 <div style={{ fontWeight: 700, color: "#555", fontSize: 12, marginBottom: 8, letterSpacing: 1 }}>INSERIR PLACARES</div>
                 <GroupFilter />
                 {filteredMatches.map(m => (
-                  <MatchCard key={m.id} match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} onSetPenalty={setPenalty} userGuess={null} showResult={false} />
+                  <div key={m.id}>
+                    <MatchCard match={m} isAdmin={true} onSetScore={setMatchScore} onToggleLock={toggleLock} onClearScore={clearScore} onSetPenalty={setPenalty} userGuess={null} showResult={false} />
+                    {m.phase !== "Grupos" && (
+                      <div style={{ textAlign: "center", marginTop: -6, marginBottom: 10 }}>
+                        <button onClick={() => { setEditMatchId(m.id); setEditMatchForm({ home: m.home, away: m.away, date: m.date || "", time: m.time || "", phase: m.phase }); }}
+                          style={{ background: "#1a1a1a", color: "#888", border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 12px", cursor: "pointer", fontSize: 11 }}>
+                          ✏️ Editar jogo
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ))}
+
+                {/* Modal editar jogo */}
+                {editMatchId && (
+                  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+                    onClick={() => setEditMatchId(null)}>
+                    <div style={{ background: "#161616", border: "1px solid #c9a227", borderRadius: 12, padding: 20, width: "100%", maxWidth: 400 }}
+                      onClick={e => e.stopPropagation()}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                        <div style={{ fontWeight: 900, color: "#c9a227", fontSize: 16 }}>✏️ Editar Jogo</div>
+                        <button onClick={() => setEditMatchId(null)} style={{ background: "transparent", color: "#888", border: "none", cursor: "pointer", fontSize: 22 }}>×</button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        <select value={editMatchForm.phase} onChange={e => setEditMatchForm(p => ({ ...p, phase: e.target.value }))}
+                          style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }}>
+                          {["16 Avos de Final", "Oitavas de Final", "Quartas de Final", "Semifinal", "Terceiro Lugar", "Final"].map(ph => <option key={ph} value={ph}>{ph}</option>)}
+                        </select>
+                        <input value={editMatchForm.home} onChange={e => setEditMatchForm(p => ({ ...p, home: e.target.value }))} placeholder="Time da casa..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                        <input value={editMatchForm.away} onChange={e => setEditMatchForm(p => ({ ...p, away: e.target.value }))} placeholder="Time visitante..." style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <input type="date" value={editMatchForm.date} onChange={e => setEditMatchForm(p => ({ ...p, date: e.target.value }))} style={{ flex: 1, background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                          <input type="time" value={editMatchForm.time} onChange={e => setEditMatchForm(p => ({ ...p, time: e.target.value }))} style={{ flex: 1, background: "#0a0a0a", border: "1px solid #2a2a2a", color: "#e8e8e8", borderRadius: 6, padding: "8px 12px" }} />
+                        </div>
+                        <button onClick={async () => {
+                          const updated = matches.map(m => m.id === editMatchId ? { ...m, home: editMatchForm.home, away: editMatchForm.away, date: editMatchForm.date || null, time: editMatchForm.time || null, phase: editMatchForm.phase, round: editMatchForm.phase } : m);
+                          await saveMatches(updated);
+                          setEditMatchId(null);
+                        }} style={btnGold}>Salvar alterações</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #1a1a1a", display: "flex", flexDirection: "column", gap: 10 }}>
                   <button onClick={async () => {
