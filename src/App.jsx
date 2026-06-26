@@ -549,8 +549,10 @@ export default function App() {
 
   const groups = ["Todos", ...Object.keys(GROUPS_DATA)];
   const knockoutMatches = matches.filter(m => m.phase !== "Grupos");
+  const knockoutPhases = [...new Set(knockoutMatches.map(m => m.phase))];
   const filteredMatches = (() => {
     if (filterGroup === "Mata-mata") return knockoutMatches;
+    if (knockoutPhases.includes(filterGroup)) return matches.filter(m => m.phase === filterGroup);
     const list = filterGroup === "Todos"
       ? matches.filter(m => m.phase === "Grupos")
       : matches.filter(m => m.group === filterGroup && m.phase === "Grupos");
@@ -582,13 +584,13 @@ export default function App() {
           border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
         }}>{g === "Todos" ? "Todos" : `Grupo ${g}`}</button>
       ))}
-      {knockoutMatches.length > 0 && (
-        <button onClick={() => setFilterGroup("Mata-mata")} style={{
-          background: filterGroup === "Mata-mata" ? "#c9a227" : "#161616",
-          color: filterGroup === "Mata-mata" ? "#111" : "#888",
+      {knockoutPhases.map(phase => (
+        <button key={phase} onClick={() => setFilterGroup(phase)} style={{
+          background: filterGroup === phase ? "#c9a227" : "#161616",
+          color: filterGroup === phase ? "#111" : "#888",
           border: "1px solid #2a2a2a", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 12, fontWeight: 700
-        }}>⚔️ Mata-mata</button>
-      )}
+        }}>⚔️ {phase}</button>
+      ))}
     </div>
   );
 
