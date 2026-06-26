@@ -550,20 +550,19 @@ export default function App() {
   const groups = ["Todos", ...Object.keys(GROUPS_DATA)];
   const knockoutMatches = matches.filter(m => m.phase !== "Grupos");
   const knockoutPhases = [...new Set(knockoutMatches.map(m => m.phase))];
+  const sortByDate = (list) => [...list].sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    const da = new Date(`${a.date}T${a.time || "00:00"}`);
+    const db2 = new Date(`${b.date}T${b.time || "00:00"}`);
+    return da - db2;
+  });
   const filteredMatches = (() => {
-    if (filterGroup === "Mata-mata") return knockoutMatches;
-    if (knockoutPhases.includes(filterGroup)) return matches.filter(m => m.phase === filterGroup);
-    const list = filterGroup === "Todos"
-      ? matches.filter(m => m.phase === "Grupos")
-      : matches.filter(m => m.group === filterGroup && m.phase === "Grupos");
-    if (filterGroup === "Todos") {
-      return [...list].sort((a, b) => {
-        const da = new Date(`${a.date}T${a.time || "00:00"}`);
-        const db2 = new Date(`${b.date}T${b.time || "00:00"}`);
-        return da - db2;
-      });
-    }
-    return list;
+    if (filterGroup === "Mata-mata") return sortByDate(knockoutMatches);
+    if (knockoutPhases.includes(filterGroup)) return sortByDate(matches.filter(m => m.phase === filterGroup));
+    if (filterGroup === "Todos") return sortByDate(matches.filter(m => m.phase === "Grupos"));
+    return matches.filter(m => m.group === filterGroup && m.phase === "Grupos");
   })();
 
   const playerTabs = [
