@@ -724,6 +724,11 @@ export default function App() {
                     </div>
                     <div style={{ flex: 1, fontWeight: 700, fontSize: 15 }}><Flag country={m.away} /> {m.away}</div>
                   </div>
+                  {m.penaltyWinner && m.scoreHome === m.scoreAway && (
+                    <div style={{ textAlign: "center", marginTop: 6, fontSize: 12, color: "#c9a227", fontWeight: 700 }}>
+                      🥅 Pênaltis: <strong>{m.penaltyWinner}</strong> avança
+                    </div>
+                  )}
                   {m.scoreHome !== null && (() => {
                     let exact = 0, win = 0;
                     players.forEach(p => {
